@@ -1,0 +1,129 @@
+You start at the doors of a massive castle. You look at your surroundings: A wide open space. This castle has been constructed atop a cliff with no apparent way to enter or leave. A maiden's shouts can be faintly heard inside. You hear your name being called out. "'Name'! Save me!"... You try to force the door open, but it appears to be locked. The path behind you	 is gone beacuse the wooden bridge collapsed. You can go around the castle through the left or the right. 
+
+As you start to feel you gain control over your whole body after daydreaming about... well... that's not important..., but after you regain body control, you hear a strange voice saying "Welcome to my world, dear player.
+I'm the inner voice of your conscience. During this adventure you're about to embark, I will be the one in charge of guiding you. In case you need any help, you may type in "
+
+First inventory: a steel sword, a wooden shield, 2 healing herbs and a leather chest plate
+(none of the items are equiped, you need to equip the first)
+
+/*
+Important:
+If no shield is equiped, attack twice, once with each arm
+(If one hand sword and one hand fist, which first?)
+(Assign each weapon a weight stat, which decides which arms goes first and if enemy attacks before your second attack)
+(For the second attack to take place before enemy attack, both weapon's weight must be less than or equal the weight of the weapon of the enemy (equal because you have already started to attack, you got that advantage))
+(To make manners easy, fists have an weight of 0, meaning that double fist always attack twice before enemy)
+If shield is equiped, has a chance to defend completely (chance depends on shield)
+If nothing equiped in both hands, attack twice before enemy can counter
+*/
+
+First enemy: a red wooden-sword-wielding goblin
+
+-If approached through the left, it appears with its tack to you. You think you can surprise attack it. (Just a thought, special attack called "FINISHER!", where you deliver a fatal blow)
+(There will be the posibility to grab the goblin's sword, in which case, he'll be statled. Having nothing to attack with, it clenches both hands into fists and takes a 
+-If approached through the right, he appears in front of you, both startled. Both of you lock eyes. In a quick flash, the goblin grins and takes a fighting stance. Since you fear your own death, your quick reactions make you take the first move.
+
+In combat, you have the possibilities to attack, defend, use an item from inventory or flee from battle. 
+If you flee, you end up in the room before and MUST lose something for fleeing, still not decided yet
+/*If you flee but enemy chases, what's the purpose?*/
+(maybe to plan out some strategy or something, losing something is a bit unfrogiving)
+
+
+(Random drops after each enemy kill?)
+-At least with first enemy, no
+-Then, with progressing in the game, make the odds for better items bigger
+-This will be done with one random roll, then compare them by order of least likely to most likely. If it is within range of any one, that one spawns and stops the trial and error of dropped items
+(Random drops with each new room?)(or a kind of shop?)
+-How about a "treasure room"? 
+-This will be a room where the player will be rewarded with the ability to stack on item/items. 
+-There will be healing herbs present, 2 swords and a shield held in the next fashion "two swords forming an "x" shape, with a shield in the middle, forming some kind of knighthood symbol", magic books (and maybe some stat-enhancing potions). You're "free" to grab the healing herbs (maybe the stat-booster) and one more item. If you grab first the item, you'll lose the posibility to grab the herbs. Whenever you get the extra item, something comes to attack you, ehich you can't defend and you flee the room.
+--In case of the books, once you grab one, the following will happen "Once you grabbed the 'x' book, a funny feeling invades your being. Instantly, the entire bookshelf starts to tremble. As the books appear to fall out of the bookslelf, they apparently float and stay midair. While you observe all of this happen, flabbergasted, the books line up in a somewhat menacing formation. The book next to the one you took flies toward you. With your good reflexes and a bit of luck, you dodge the book. Not wanting to expect what the other books will probably do, you exit the room preemptively".
+--In case of the sword or shield, the following will happen ""
+
+
+After defeating the goblin, you see a treasure chest magically appear in front of you. Naturally, you start to doubt reality around you, but short after, you see to the distance and you make out a flying figure. Big wings, a long tail, big snout and a fire-breathing mouth... a dragon. And with that, you finally confirm your belief... this is a fantasy world.
+
+(Open the treasure chest)
+When you start to kneel to open the chest, a strange sound out of nowhere starts. You take notice but decide it won't detain you from opening the chest. Inside the chest, you find a  
+
+
+
+
+As you enter the castle great entrance hall, you are mesmerized by the sheer amount of detail found within. Those perfectly carved statues of historic figures lining up to the end of the hall are amazing. In between both rows of statues, a red carpet sprawls to the end of the room, where a staircase leading to the next floor is present. Looking up reveals a magnificent chandelier, whose worth you can't possibly fathom. To the left, you find a flight of stairs going to the floor below. When you look to this direction, you hear a subtle but powerful snort. To the left, you see a door ajar, leading into what seems to be a chamber of some sorts. Torches illuminate your sight, making the shadows of the objects appear to dance, which unsettles you, making you remember the reason you're inside this castle, the maiden in distress.
+
+
+When you decide to go to the staircase, the statue of one of your greatest heroes, Lance-a-lot, jumps out of its pedestal. Due to the helment worn, his face is not visible, but by analyzing his body stance, you figure he'll not let you through without a good fight. Pointing his trusty spear at you, he challenges you to a battle to the death.
+
+
+
+Potential puzzles:
+-When going to a dark room, you'll need to grab one torch from the first floor to explore the room
+-Keys and locks (if multiple at a time, give them adjectives, like small key with small lock, rusted key, intricate lock, etc)
+-(very niche, but possible) if on inventory, you have a fire-element spell and a torch, you can light the torch (the torch will go out because of wind)(if you close the window producing the wind, it'll be too dark to see)
+-Levers and contraptions (non-timely)
+-A secret bookshelf contraption. The "fishy book" will be named "Boring book of Boringness", then "as you try and grab/take the book, you notice its stuck by the bottom, only being able to pivot. When it is at its limit of rotation, you hear a slight 'click' sound. This is accompanies by a sudden movement to the side of the entire bookshelf. Gathering all of your strength, you pull the bookshelf, revealing a previously unknown room"
+In this "bonus rooms", you'll be able to gather a free stat-booster, two healing herbs and also, the books from the shelf that you moved previously.
+
+
+Possible additional things:
+-Wearable hats (first idea is a white chicken hat)(Whose description is: "Putting this on makes you feel awkward at first, but for some reason, you feel like a whole gang of chickens could back you up if you get hit enough"(strength +1)) 
+-
+
+
+
+Possible verbs: (if possible, make abbreviations)
+-status (displays health, weapon durability, etc)
+-inventory
+-equipment
+-equip
+-unequip
+(equip and unequip shouldnt take away turn in battle)
+-drop
+-look/observe/look around/gaze?/gaze around?
+(when this happens, you'll be able to see the items you dropped)
+-move(or just the direction)
+(the "move" will have two parameters always, the text and the room)
+(if can't move in that direction, then relpicate original position)
+-grab/take
+(if take/grab everything/all, tell not possible, if in "treasure room", no loot at all)
+-push
+-pull/drag?
+-read/gaze/(skim?)(or maybe a custom message forskim?)
+-use/apply
+-open
+-close
+-attack
+-defend
+-run
+-wait? (in case enemy uses defend and you know you'll only lose weapon durability)
+(but in that case, ain't it better to defend?)
+(yes, but its better to give players choice, not limiting them to what my logic says)
+-climb
+-light/burn?
+-shoot?
+-break/shatter?(Possible excuse of not doing so is: "seeing how valuable that may be, and with your appreciation of this kind of objects, you decide not to break it")
+-HELP!
+-default(something along the lines of "thinking on what you just said... you've got no idea what that means and decide to ignore your strange train of thought")'
+
+/*
+Important
+Each possible verb applies to each item, so every new verb must be added to each item that is interactable with
+*/
+
+
+QoL thought: 
+Since the game is saved in a Mongo Collection, and since the moves will be recorded, you can make a gamestate where if the player logs in again, he/she can choose to pick up where he/she left off 
+
+
+Plot-twist: the queen wanted you dead, and started shouting and cursing everything to get you killed
+
+
+Possible typing easter eggs:
+-Easter egg (will only congratulate the player for knowing their existance, but argue that right now its not Easter in this world and continue)
+-System call (will say: "good try, but the system can only be accessed by me, the inner voice of your conscience")
+-God mode (will say: "What, do you think this is a cheap videogame with cheap cheats like that? Well, you're on the wrong track buddy. Good luck finding such cheats")
+
+3 rules
+1. Player knows what they need to do
+2. Player has a good idea how to solve puzzle
+3. Player is helped to know if on the right answer
