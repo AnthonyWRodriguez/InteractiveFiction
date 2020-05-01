@@ -72,7 +72,7 @@ Possible additional things:
 
 
 Possible verbs: (if possible, make abbreviations)
--status (displays health, weapon durability, etc)
+-status (displays health, weapons equiped, etc)
 -inventory
 -equipment
 -equip
@@ -81,28 +81,29 @@ Possible verbs: (if possible, make abbreviations)
 -drop
 -look/observe/look around/gaze?/gaze around?
 (when this happens, you'll be able to see the items you dropped)
--move(or just the direction)
+(this means that there is need for a "dropped" key in each room)
+-move(or just the direction)(forward/north/up, backward/south/down, left/west/westward) 
 (the "move" will have two parameters always, the text and the room)
 (if can't move in that direction, then relpicate original position)
 -grab/take
 (if take/grab everything/all, tell not possible, if in "treasure room", no loot at all)
 -push
 -pull/drag?
--read/gaze/(skim?)(or maybe a custom message forskim?)
+-read/gaze/(skim?)(or maybe a custom message for skim?)
 -use/apply
 -open
 -close
 -attack
 -defend
--run
--wait? (in case enemy uses defend and you know you'll only lose weapon durability)
-(but in that case, ain't it better to defend?)
+-run/flee
+-wait? (but in that case, ain't it better to defend?)
 (yes, but its better to give players choice, not limiting them to what my logic says)
 -climb
 -light/burn?
 -shoot?
 -break/shatter?(Possible excuse of not doing so is: "seeing how valuable that may be, and with your appreciation of this kind of objects, you decide not to break it")
--HELP!
+-HELP! (help for now should be an interactable object, so it needs to be declared only once)
+(and to make it lightweight, it will be an exception to the "normal" object, where it will only have the description its supposed to show) 
 -default(something along the lines of "thinking on what you just said... you've got no idea what that means and decide to ignore your strange train of thought")'
 
 /*
@@ -110,9 +111,36 @@ Important
 Each possible verb applies to each item, so every new verb must be added to each item that is interactable with
 */
 
+/*
+Important:
+There will only be 1 verb saved, the verbs with synomyms will be compared in the "on-enter" function
+*/
+
 
 QoL thought: 
 Since the game is saved in a Mongo Collection, and since the moves will be recorded, you can make a gamestate where if the player logs in again, he/she can choose to pick up where he/she left off 
+
+
+Ideas: (or rather, how things will be done) for rooms:
+-Since there only are linear paths (only 1 room can be reached by typing a specific direction)
+-There will only be 1 room loaded at once (unless a very very very specific thing happens)
+-When you leave 1 room, the current state is saved and then the other one is loaded
+-There will only be a room entered text which can depend if enemy is killed or not or something like that
+-Each room will be a document, with the same template, where all verbs will be interactable
+-All rooms will have an "enemy-killed" which will be true when there is none or is killed
+-If not, a special fighting algorithm will play out
+-(meaning that there will be an "enemy-killed-enter-dialogue", an "enemy-alive-enter-dialogue" and an "enemy-alive-re-enter-dialogue" (although this one can be ommited)
+-The directions will have the id of the room that should be loaded
+-If enemy-killed is false, each time you can write a command, should display both your and its health (at least I hate when no health is displayed)
+-Each item should have an "on-battle" and "off-battle" text?
+(no, if on battle, every command applies, if not on battle, eevry item should have an "not-on-battle" text)
+-Each time an item is needed, il will only reference the item from the items collection
+(but this means no breakable items...)
+**(yeah, its better with no breakable items)**
+-The interactable items will be placed in an array. If none, well... the default message pops up
+
+
+
 
 
 Plot-twist: the queen wanted you dead, and started shouting and cursing everything to get you killed
@@ -122,6 +150,7 @@ Possible typing easter eggs:
 -Easter egg (will only congratulate the player for knowing their existance, but argue that right now its not Easter in this world and continue)
 -System call (will say: "good try, but the system can only be accessed by me, the inner voice of your conscience")
 -God mode (will say: "What, do you think this is a cheap videogame with cheap cheats like that? Well, you're on the wrong track buddy. Good luck finding such cheats")
+
 
 3 rules
 1. Player knows what they need to do

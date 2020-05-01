@@ -9,11 +9,11 @@ module.exports = (db) =>{
         userName: "",
         userProgress: "",
         userActive: true
-    }
+    };
 
     userModel.getAll = (handler)=>{
-        usersCollection.find({}).toArray(handler);
-    }
+        return usersCollection.find({}).toArray(handler);
+    };
 
     return userModel;
 }
