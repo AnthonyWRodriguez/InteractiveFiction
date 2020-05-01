@@ -5,9 +5,8 @@ function initApi(db){
     var adminRouter = require('./admin/admin')(db);
     router.use('/admin', adminRouter);
 
-    router.get('/', (req, res)=>{
-        res.status(200).json({"msg":"si pasa"});
-    })
+    var userRouter = require('./user/user')(db);
+    router.use('/user', userRouter);
 
     return router;
 }
