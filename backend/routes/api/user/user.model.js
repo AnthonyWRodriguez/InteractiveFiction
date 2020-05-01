@@ -8,12 +8,27 @@ module.exports = (db) =>{
     var userTemplate ={
         userName: "",
         userProgress: "",
-        userActive: true
+        userActive: false
     }
 
     userModel.newUser = (data, handler)=>{
         var name = data;
-        return handler(null, {"msg":"this works"});
+        var user = Object.assign(
+            {},
+            userTemplate,
+            {
+                userName: name,
+                userProgress: null,
+                userActive: true
+            }
+        );
+        userCollection.insertOne(user, (err, rslt)=>{
+            if(err){
+                console.log(err);
+                return handler(err, null);
+            }
+            return handler(null, rslt.ops);
+        });
     }
 
 

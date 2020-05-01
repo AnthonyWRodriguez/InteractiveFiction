@@ -6,7 +6,7 @@ function initUser (db) {
     var userModel = require('./user.model')(db);
 
     router.post('/new', (req, res)=>{
-        var data = req.body;
+        var data = req.body.name;
         userModel.newUser(data, (err,user)=>{
             if(err){
                 console.log(err);
