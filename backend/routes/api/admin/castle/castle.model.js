@@ -12,6 +12,8 @@ module.exports = (db) =>{
         roomRight: "",
         roomForward: "",
         roomBackward: "",
+        roomDropped: [],
+        roomObjects: []
     };
 
     castleModel.getAllRooms = (handler) => {
@@ -30,7 +32,9 @@ module.exports = (db) =>{
                 roomLeft: left,
                 roomRight: right,
                 roomForward: forward,
-                roomBackward: backward
+                roomBackward: backward,
+                roomDropped: [],
+                roomObjects: []
             }
         );
         castleCollection.insertOne(room, (err, rslt)=>{

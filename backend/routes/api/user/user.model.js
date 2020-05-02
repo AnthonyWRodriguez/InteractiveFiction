@@ -4,6 +4,7 @@ module.exports = (db) =>{
     userModel = {};
 
     userCollection = db.collection("users");
+    castleCollection = db.collection("castle");
 
     var userTemplate ={
         userName: "",
@@ -12,22 +13,29 @@ module.exports = (db) =>{
     }
 
     userModel.newUser = (data, handler)=>{
-        var name = data;
-        var user = Object.assign(
-            {},
-            userTemplate,
-            {
-                userName: name,
-                userProgress: null,
-                userActive: true
-            }
-        );
-        userCollection.insertOne(user, (err, rslt)=>{
+        castleCollection.find({}).toArray((err, res)=>{
             if(err){
                 console.log(err);
                 return handler(err, null);
             }
-            return handler(null, rslt.ops);
+            var name = data;
+            var user = Object.assign(
+                {},
+                userTemplate,
+                {
+                    userName: name,
+                    userProgress: res,
+                    userActive: true
+                }
+            );
+            userCollection.insertOne(user, (err, rslt)=>{
+                if(err){
+                    console.log(err);
+                    return handler(err, null);
+                }
+    
+                return handler(null, rslt.ops);
+            });
         });
     };
 

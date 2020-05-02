@@ -104,7 +104,8 @@ Possible verbs: (if possible, make abbreviations)
 -break/shatter?(Possible excuse of not doing so is: "seeing how valuable that may be, and with your appreciation of this kind of objects, you decide not to break it")
 -HELP! (help for now should be an interactable object, so it needs to be declared only once)
 (and to make it lightweight, it will be an exception to the "normal" object, where it will only have the description its supposed to show) 
--default(something along the lines of "thinking on what you just said... you've got no idea what that means and decide to ignore your strange train of thought")'
+-default(something along the lines of "thinking on what you just said... you've got no idea what that means and decide to ignore your strange train of thought")
+
 
 /*
 Important
@@ -141,6 +142,15 @@ Ideas: (or rather, how things will be done) for rooms:
 **(yeah, its better with no breakable items)**
 -The interactable items will be placed in an array. If none, well... the default message pops up
 -If the next room is locked, that will be validates in the "on-enter" event
+
+How to insert objects into each room?
+1st: get all objects from the object collection
+2nd: select all which you want to add
+3rd: make all of those an array
+4th: push each individual array element into the room array
+(always check if it is not repeated)
+(if it is repeated, just continue with the next one)
+
 
 
 Weapon basic stats:
