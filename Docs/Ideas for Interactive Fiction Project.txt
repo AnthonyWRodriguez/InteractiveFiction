@@ -26,8 +26,16 @@ First enemy: a red wooden-sword-wielding goblin
 In combat, you have the possibilities to attack, defend, use an item from inventory or flee from battle. 
 If you flee, you end up in the room before and MUST lose something for fleeing, still not decided yet
 /*If you flee but enemy chases, what's the purpose?*/
-(maybe to plan out some strategy or something, losing something is a bit unfrogiving)
+(maybe to plan out some strategy or something, losing something is a bit too unfrogiving)
 
+Floor1: Red
+Floor2: Blue
+Floor3: Black
+Floor4: Silver
+Floor5: Gold
+
+Only 1 enemy per room (if intended to have one)
+(can possibly be goblin, orc or skelletal soldier)
 
 (Random drops after each enemy kill?)
 -At least with first enemy, no
@@ -132,12 +140,13 @@ Ideas: (or rather, how things will be done) for rooms:
 -If not, a special fighting algorithm will play out
 -(meaning that there will be an "enemy-killed-enter-dialogue", an "enemy-alive-enter-dialogue" and an "enemy-alive-re-enter-dialogue" (although this one can be ommited)
 -The directions will have the id of the room that should be loaded
+(since few rooms will have multiple entrances, I consider its better to add two rooms that will share all features rather than adding properties that will remain null in most rooms)
 (if direction has no room to go, it should display a message)
 **(to check what it should do, the length of the message will be greater than the ID length of each room's document)**
 -If enemy-killed is false, each time you can write a command, should display both your and its health (at least I hate when no health is displayed)
 -Each item should have an "on-battle" and "off-battle" text?
-(no, if on battle, every command applies, if not on battle, eevry item should have an "not-on-battle" text)
--Each time an item is needed, il will only reference the item from the items collection
+(no, if on battle, every command applies, if not on battle, every item should have an "not-on-battle" text)
+-Each time an item is needed, it will only reference the item from the items collection
 (but this means no breakable items...)
 **(yeah, its better with no breakable items)**
 -The interactable items will be placed in an array. If none, well... the default message pops up

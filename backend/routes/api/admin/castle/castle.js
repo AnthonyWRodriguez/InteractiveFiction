@@ -26,6 +26,22 @@ function initCastle (db) {
         });
     });
 
+
+    router.put('/updateRoom', (req, res)=>{
+        var id = req.body.id;
+        var data = {
+            "_id":id,
+            ...req.body
+        };
+        castleModel.updateRoom(data, (err, upd)=>{
+            if(err){
+                console.log(err);
+                return res.status(500).json({"msg":"Error"});
+            }
+            return res.status(200).json(upd);
+        });
+    });
+
     return router;
 
 }
