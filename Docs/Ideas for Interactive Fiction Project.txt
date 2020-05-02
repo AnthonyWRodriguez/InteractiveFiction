@@ -1,4 +1,4 @@
-You start at the doors of a massive castle. You look at your surroundings: A wide open space. This castle has been constructed atop a cliff with no apparent way to enter or leave. A maiden's shouts can be faintly heard inside. You hear your name being called out. "'Name'! Save me!"... You try to force the door open, but it appears to be locked. The path behind you	 is gone beacuse the wooden bridge collapsed. You can go around the castle through the left or the right. 
+You start at the doors of a massive castle. You look at your surroundings: A wide open space. This castle has been constructed atop a cliff with no apparent way to enter or leave. A maiden's shouts can be faintly heard inside. You hear your name being called out. "'Name'! Save me!"... You try to force the door open, but it appears to be locked. The path behind you is gone beacuse the wooden bridge collapsed. You can go around the castle through the left or the right. 
 
 As you start to feel you gain control over your whole body after daydreaming about... well... that's not important..., but after you regain body control, you hear a strange voice saying "Welcome to my world, dear player.
 I'm the inner voice of your conscience. During this adventure you're about to embark, I will be the one in charge of guiding you. In case you need any help, you may type in "
@@ -113,7 +113,7 @@ Each possible verb applies to each item, so every new verb must be added to each
 
 /*
 Important:
-There will only be 1 verb saved, the verbs with synomyms will be compared in the "on-enter" function
+There will only be 1 verb saved, the verbs with synomyms will be compared in the "on-enter" event
 */
 
 
@@ -131,6 +131,8 @@ Ideas: (or rather, how things will be done) for rooms:
 -If not, a special fighting algorithm will play out
 -(meaning that there will be an "enemy-killed-enter-dialogue", an "enemy-alive-enter-dialogue" and an "enemy-alive-re-enter-dialogue" (although this one can be ommited)
 -The directions will have the id of the room that should be loaded
+(if direction has no room to go, it should display a message)
+**(to check what it should do, the length of the message will be greater than the ID length of each room's document)**
 -If enemy-killed is false, each time you can write a command, should display both your and its health (at least I hate when no health is displayed)
 -Each item should have an "on-battle" and "off-battle" text?
 (no, if on battle, every command applies, if not on battle, eevry item should have an "not-on-battle" text)
@@ -138,9 +140,18 @@ Ideas: (or rather, how things will be done) for rooms:
 (but this means no breakable items...)
 **(yeah, its better with no breakable items)**
 -The interactable items will be placed in an array. If none, well... the default message pops up
+-If the next room is locked, that will be validates in the "on-enter" event
 
 
+Weapon basic stats:
+-name (unique)
+-weight
+-power
+(no idea what else)
 
+
+Idea for BackCastleRoom
+-Add a parameter to determine wheter it was approached by the left or right
 
 
 Plot-twist: the queen wanted you dead, and started shouting and cursing everything to get you killed

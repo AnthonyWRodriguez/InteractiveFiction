@@ -29,9 +29,7 @@ module.exports = (db) =>{
             }
             return handler(null, rslt.ops);
         });
-    }
-
-
+    };
 
     return userModel;
 }

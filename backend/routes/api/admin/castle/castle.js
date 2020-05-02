@@ -5,7 +5,7 @@ function initCastle (db) {
 
     var castleModel = require('./castle.model')(db);
 
-    router.get('/allrooms', (req, res)=>{
+    router.get('/allRooms', (req, res)=>{
         castleModel.getAllRooms((err, rooms)=>{
             if(err){
                 console.log(err);
@@ -15,9 +15,16 @@ function initCastle (db) {
         });
     });
 
-    router.get('/', (req, res)=>{
-        res.status(200).json({"msg":"Si llega"});
-    })
+    router.post('/newRoom', (req, res)=>{
+        var data = req.body;
+        castleModel.newRoom(data, (err, room)=>{
+            if(err){
+                console.log(err);
+                return res.status(500).json({"msg":"Error"});
+            }
+            return res.status(200).json(room);
+        });
+    });
 
     return router;
 
