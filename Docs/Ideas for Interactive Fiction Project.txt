@@ -80,19 +80,33 @@ Possible additional things:
 
 
 Possible verbs: (if possible, make abbreviations)
+(This should work always and take no action)
 -status (displays health, weapons equiped, etc)
 -inventory
 -equipment
+-look/look around/gaze?/gaze around?
+-move(or just the direction)(forward/north/up, backward/south/down, left/west/westward) 
+(the "move" will have two parameters always, the text and the room)
+(if can't move in that direction, then relpicate original position)
+
+
+(This should work when enemy is alive and if not, a default message)
+-attack
+-defend
+-run/flee
+-wait? (but in that case, ain't it better to defend?)
+(yes, but its better to give players choice, not limiting them to what my logic says)
+
+
+(there will be inventory objects and environmental objects)
+(beyond this point, verbs must be accompanied by an object and enemy must not be alive)
 -equip
 -unequip
 (equip and unequip shouldnt take away turn in battle)
 -drop
--look/observe/look around/gaze?/gaze around?
+-observe/examine
 (when this happens, you'll be able to see the items you dropped)
 (this means that there is need for a "dropped" key in each room)
--move(or just the direction)(forward/north/up, backward/south/down, left/west/westward) 
-(the "move" will have two parameters always, the text and the room)
-(if can't move in that direction, then relpicate original position)
 -grab/take
 (if take/grab everything/all, tell not possible, if in "treasure room", no loot at all)
 -push
@@ -101,11 +115,6 @@ Possible verbs: (if possible, make abbreviations)
 -use/apply
 -open
 -close
--attack
--defend
--run/flee
--wait? (but in that case, ain't it better to defend?)
-(yes, but its better to give players choice, not limiting them to what my logic says)
 -climb
 -light/burn?
 -shoot?
@@ -119,6 +128,7 @@ Possible verbs: (if possible, make abbreviations)
 Important
 Each possible verb applies to each item, so every new verb must be added to each item that is interactable with
 */
+(but since there will be big categories of objects, we'll separate some verbs to be object-type specific and if not present, default message)
 
 /*
 Important:
@@ -150,7 +160,7 @@ Ideas: (or rather, how things will be done) for rooms:
 (but this means no breakable items...)
 **(yeah, its better with no breakable items)**
 -The interactable items will be placed in an array. If none, well... the default message pops up
--If the next room is locked, that will be validates in the "on-enter" event
+-If the next room is locked, that will be validated in the "on-enter" event
 
 How to insert objects into each room?
 1st: get all objects from the object collection
@@ -160,7 +170,10 @@ How to insert objects into each room?
 (always check if it is not repeated)
 (if it is repeated, just continue with the next one)
 
-
+*/
+Important:
+If enemy is alive, use shall be translated to attack
+*/
 
 Weapon basic stats:
 -name (unique)
@@ -168,9 +181,6 @@ Weapon basic stats:
 -power
 (no idea what else)
 
-
-Idea for BackCastleRoom
--Add a parameter to determine wheter it was approached by the left or right
 
 
 Plot-twist: the queen wanted you dead, and started shouting and cursing everything to get you killed

@@ -24,11 +24,13 @@ function initApp(db){
   var apiRouter = require('./routes/api/api')(db);
   var apiAdmin = require('./routes/api/admin/admin')(db);
   var apiUser = require('./routes/api/user/user')(db);
+  var apiObjects = require('./routes/api/admin/objects/objects')(db);
 
   app.use('/', indexRouter);
   app.use('/api', apiRouter);
   app.use('/admin', apiAdmin);
   app.use('/user', apiUser);
+  app.use('/objects', apiObjects);
 
   // catch 404 and forward to error handler
   app.use(function(req, res, next) {

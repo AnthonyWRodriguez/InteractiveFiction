@@ -14,7 +14,8 @@ module.exports = (db) =>{
         roomForward: "",
         roomBackward: "",
         roomDropped: [],
-        roomObjects: [],
+        roomObjectsInv: [],
+        roomObjectsEnv: [],
         roomEnemy: "",
         roomEnemyHealth: "",
         roomEnemyAlive: false
@@ -39,7 +40,8 @@ module.exports = (db) =>{
                 roomForward: forward,
                 roomBackward: backward,
                 roomDropped: [],
-                roomObjects: [],
+                roomObjectsInv: [],
+                roomObjectsEnv: [],
                 roomEnemy: "",
                 roomEnemyHealth: "",
                 roomEnemyAlive: false
