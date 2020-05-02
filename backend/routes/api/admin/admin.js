@@ -8,6 +8,9 @@ function initAdmin(db){
     var castleRouter = require('./castle/castle')(db);
     router.use('/castle', castleRouter);
 
+    var objectsRouter = require('./objects/objects')(db);
+    router.use('/objects', objectsRouter);
+
     return router;
 }
 module.exports = initAdmin;
