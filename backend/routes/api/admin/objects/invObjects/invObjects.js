@@ -16,7 +16,13 @@ function initObjects (db) {
     });
 
     router.post('/newObject', (req, res)=>{
-        var data = req.body;
+        var val = parseInt(req.body.valueS);
+        var wei = parseInt(req.body.weightS);
+        var data = {
+            "value": val,
+            "weight": wei,
+            ...req.body
+        };
         objectsModel.newObject(data, (err, object)=>{
             if(err){
                 console.log(err);
@@ -27,7 +33,13 @@ function initObjects (db) {
     });
 
     router.put('/updateObject', (req, res)=>{
-        var data = req.body;
+        var val = parseInt(req.body.valueS);
+        var wei = parseInt(req.body.weightS);
+        var data = {
+            "value": val,
+            "weight": wei,
+            ...req.body
+        };
         objectsModel.updateObject(data, (err, upd)=>{
             if(err){
                 console.log(err);

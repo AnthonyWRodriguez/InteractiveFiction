@@ -116,7 +116,7 @@ Possible verbs: (if possible, make abbreviations)
 -push
 -pull/drag?
 -read/gaze/(skim?)(or maybe a custom message for skim?)
--use/apply
+-use/apply/eat?(when heal?)
 -open
 -close
 -climb
@@ -227,6 +227,7 @@ For when it has to drop an item:
 -Enters the saxios
 
 For the equip of an item:
+-If not atk, interrupts (and brings the custom message)
 -Grabs the entire inventory
 -Checks to see if the specified item exists in the inventory
 -If the user specifies the direction of equip, pass the direction, else, default(1st left)
@@ -238,6 +239,10 @@ For grabbing an item:
 -Splice the object from the array and use the spliced array now
 -Enter saxios
 
+
+/*
+After all this actions, display message related to action
+*/
 
 
 
