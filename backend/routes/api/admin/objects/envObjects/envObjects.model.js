@@ -83,7 +83,7 @@ module.exports = (db) =>{
                     console.log(err);
                     return handler(err, null);
                 }
-                return handler(null, upd.value);
+                return handler(null, upd);
             }
         )
     }

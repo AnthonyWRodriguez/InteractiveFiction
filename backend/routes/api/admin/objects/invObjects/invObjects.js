@@ -25,6 +25,17 @@ function initObjects (db) {
             return res.status(200).json(object);
         });
     });
+
+    router.put('/updateObject', (req, res)=>{
+        var data = req.body;
+        objectsModel.updateObject(data, (err, upd)=>{
+            if(err){
+                console.log(err);
+                return res.status(500).json({"msg":"Error"});
+            }
+            return res.status(200).json(upd);
+        });
+    });
     
     return router;
 }

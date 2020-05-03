@@ -52,6 +52,36 @@ module.exports = (db) =>{
         )
     };
 
+    objectsModel.updateObject = (data, handler)=>{
+        var {id, name, desc, type, value, weight, use, equip, unequip, drop, grab, help} = data;
+        var query = {"_id": new ObjectID(id)};
+        var updateCommand = {
+            $set:{
+                objectName: name,
+                objectDesc: desc,
+                objectType: type,
+                objectValue: value,
+                objectWeight: weight,
+                objectUse: use,
+                objectEquip: equip,
+                objectUnequip: unequip,
+                objectDrop: drop,
+                objectGrab: grab,
+                objectHelp: help
+            }
+        }
+        objectsCollection.findOneAndUpdate(
+            query,
+            updateCommand,
+            (err, upd)=>{
+                if(err){
+                    console.log(err);
+                    return handler(err, null);
+                }
+                return handler(null, upd);
+            }
+        )
+    }
 
     
     return objectsModel;
