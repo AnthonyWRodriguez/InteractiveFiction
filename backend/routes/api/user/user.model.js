@@ -157,5 +157,35 @@ module.exports = (db) =>{
         )
     };
 
+    userModel.unequipObject = (data, handler)=>{
+        var{id, direction} = data;
+        var query = {"_id": new ObjectID(id)};
+        var updateCommand="";
+        if(direction==="left"){
+            updateCommand = {
+                $set:{
+                    "userLeftEquip": "Fist"
+                }
+            }    
+        }else{
+            updateCommand = {
+                $set:{
+                    "userRightEquip": "Fist"
+                }
+            }  
+        }
+        userCollection.findOneAndUpdate(
+            query,
+            updateCommand,
+            (err, upd)=>{
+                if(err){
+                    console.log(err);
+                    return handler(err, null);
+                }
+                return handler(null, upd);
+            }
+        )
+    }
+
     return userModel;
 }

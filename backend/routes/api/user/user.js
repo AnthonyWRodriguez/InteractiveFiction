@@ -56,6 +56,17 @@ function initUser (db) {
         });
     });
 
+    router.put('/unequip', (req, res)=>{
+        var data = req.body;
+        userModel.unequipObject(data, (err, unequip)=>{
+            if(err){
+                console.log(err);
+                return res.status(500).json({"msg":"Error"});
+            }
+            return res.status(200).json(unequip);
+        });
+    });
+
     return router;
 }
 module.exports = initUser;
