@@ -208,6 +208,8 @@ Weapon basic stats:
 Important
 Have a basic room entrance
 And depending on whether an item has been interacted or not, alter the room description
+This may be done by having each item with an "interacted-with" property
+And within those items, having both dialogues
 */
 
 
@@ -219,8 +221,8 @@ For when it has to drop an item:
 -It grabs the entire inventory
 -It runs through it to see if the item exists
 -If exists, saves the index in a variable
--Continues to run through the array
--If item is atk, it should look for another one if equipped
+-If user has the item equiped, continues to run through the array
+-If not equipped, have duplicate = true and break the cycle
 -If finds the item once more, sets a flag to true
 -Exits the checking of the array
 -Does a splice of the item it wants to drop and uses the new array

@@ -69,6 +69,28 @@ module.exports = (db) =>{
         )
     };
 
+    userModel.currentRoom = (data, handler)=>{
+        var {userID, roomID} = data;
+        var query = {"_id": new ObjectID(userID)};
+        userCollection.findOne(
+            query,
+            (err, user)=>{
+                if(err){
+                    console.log(err);
+                    return handler(err, null);
+                }
+                var index;
+                for(var x=0;x<user.userProgress.length;x++){
+                    if(user.userProgress[x]._id==roomID){
+                        index = x;
+                        break;
+                    }
+                }
+                return handler(null, user.userProgress[index]);
+            }
+        )
+    }
+
     userModel.dropObject = (data, handler)=>{
         var {id, inv, obj, duplicate, dir, room} = data;
         var query = {"_id": new ObjectID(id)};
