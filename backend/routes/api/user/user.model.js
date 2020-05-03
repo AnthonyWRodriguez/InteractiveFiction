@@ -25,6 +25,8 @@ module.exports = (db) =>{
             }
             var name = data;
             var sword = "Steel Sword";
+            var healHerb = "Healing Herb";
+            var shield = "Iron Shield";
             var fist = "Fist";
             var room = new ObjectID("5eacf27a2c15fc3cbcc80c6a");
             var user = Object.assign(
@@ -33,7 +35,7 @@ module.exports = (db) =>{
                 {
                     userName: name,
                     userProgress: res,
-                    userInventory: [sword],
+                    userInventory: [sword, healHerb, healHerb, shield],
                     userLeftEquip: fist,
                     userRightEquip: fist,
                     userCurrentRoom: room,
@@ -68,16 +70,41 @@ module.exports = (db) =>{
     };
 
     userModel.dropObject = (data, handler)=>{
-        var {id, inv, obj, room} = data;
+        var {id, inv, obj, duplicate, dir, room} = data;
         var query = {"_id": new ObjectID(id)};
-        var updateCommand = {
-            $set:{
-                "userInventory": inv
-            },
-            $push:{
-                "userProgress.$[r].roomDropped": obj
-            }
-        };
+        var updateCommand = "";
+        if(duplicate==="true"){
+            updateCommand = {
+                $set:{
+                    "userInventory": inv
+                },
+                $push:{
+                    "userProgress.$[r].roomDropped": obj
+                }
+            };    
+        }else{
+            if(dir==="left"){
+                updateCommand = {
+                    $set:{
+                        "userInventory": inv,
+                        "userLeftEquip": "Fist"
+                    },
+                    $push:{
+                        "userProgress.$[r].roomDropped": obj
+                    }
+                };
+            }else{
+                updateCommand = {
+                    $set:{
+                        "userInventory": inv,
+                        "userRightEquip": "Fist"
+                    },
+                    $push:{
+                        "userProgress.$[r].roomDropped": obj
+                    }
+                };
+            } 
+        }
         var filter = {
             arrayFilters: [
                 {
@@ -90,6 +117,36 @@ module.exports = (db) =>{
             query,
             updateCommand,
             filter,
+            (err, upd)=>{
+                if(err){
+                    console.log(err);
+                    return handler(err, null);
+                }
+                return handler(null, upd);
+            }
+        )
+    };
+
+    userModel.equipObject = (data, handler) =>{
+        var {id, nameObj, direction} = data;
+        var query = {"_id": new ObjectID(id)};
+        var updateCommand="";
+        if(direction==="left"){
+            updateCommand = {
+                $set:{
+                    "userLeftEquip": nameObj
+                }
+            }    
+        }else{
+            updateCommand = {
+                $set:{
+                    "userRightEquip": nameObj
+                }
+            }  
+        }
+        userCollection.findOneAndUpdate(
+            query,
+            updateCommand,
             (err, upd)=>{
                 if(err){
                     console.log(err);

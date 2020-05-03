@@ -45,6 +45,17 @@ function initUser (db) {
         });
     });
 
+    router.put('/equip', (req, res)=>{
+        var data = req.body;
+        userModel.equipObject(data, (err, equip)=>{
+            if(err){
+                console.log(err);
+                return res.status(500).json({"msg":"Error"});
+            }
+            return res.status(200).json(equip);
+        });
+    });
+
     return router;
 }
 module.exports = initUser;

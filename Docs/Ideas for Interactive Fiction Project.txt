@@ -79,6 +79,10 @@ Possible additional things:
 
 
 
+
+
+
+
 Possible verbs: (if possible, make abbreviations)
 (This should work always and take no action)
 -status (displays health, weapons equiped, etc)
@@ -124,6 +128,11 @@ Possible verbs: (if possible, make abbreviations)
 -default(something along the lines of "thinking on what you just said... you've got no idea what that means and decide to ignore your strange train of thought")
 
 
+
+
+
+
+
 /*
 Important
 Each possible verb applies to each item, so every new verb must be added to each item that is interactable with
@@ -136,8 +145,21 @@ There will only be 1 verb saved, the verbs with synomyms will be compared in the
 */
 
 
+
+
+
+
+
+
 QoL thought: 
 Since the game is saved in a Mongo Collection, and since the moves will be recorded, you can make a gamestate where if the player logs in again, he/she can choose to pick up where he/she left off 
+
+
+
+
+
+
+
 
 
 Ideas: (or rather, how things will be done) for rooms:
@@ -162,13 +184,9 @@ Ideas: (or rather, how things will be done) for rooms:
 -The interactable items will be placed in an array. If none, well... the default message pops up
 -If the next room is locked, that will be validated in the "on-enter" event
 
-How to insert objects into each room?
-1st: get all objects from the object collection
-2nd: select all which you want to add
-3rd: make all of those an array
-4th: push each individual array element into the room array
-(always check if it is not repeated)
-(if it is repeated, just continue with the next one)
+
+
+
 
 */
 Important:
@@ -182,6 +200,10 @@ Weapon basic stats:
 (no idea what else)
 
 
+
+
+
+
 /*
 Important
 Have a basic room entrance
@@ -190,13 +212,47 @@ And depending on whether an item has been interacted or not, alter the room desc
 
 
 
+
+
+
+For when it has to drop an item:
+-It grabs the entire inventory
+-It runs through it to see if the item exists
+-If exists, saves the index in a variable
+-Continues to run through the array
+-If finds the item once more, sets a flag to true
+-Exits the checking of the array
+-Does a splice of the item it wants to drop and uses the new array
+-Enters the saxios
+
+For the equip of an item:
+-Grabs the entire inventory
+-Checks to see if the specified item exists in the inventory
+-If the user specifies the direction of equip, pass the direction, else, default(1st left)
+-If exists, enter saxios
+
+
+
+
+
+
+
+
 Plot-twist: the queen wanted you dead, and started shouting and cursing everything to get you killed
+
+
+
+
 
 
 Possible typing easter eggs:
 -Easter egg (will only congratulate the player for knowing their existance, but argue that right now its not Easter in this world and continue)
 -System call (will say: "good try, but the system can only be accessed by me, the inner voice of your conscience")
 -God mode (will say: "What, do you think this is a cheap videogame with cheap cheats like that? Well, you're on the wrong track buddy. Good luck finding such cheats")
+
+
+
+
 
 
 3 rules
