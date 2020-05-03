@@ -220,6 +220,7 @@ For when it has to drop an item:
 -It runs through it to see if the item exists
 -If exists, saves the index in a variable
 -Continues to run through the array
+-If item is atk, it should look for another one if equipped
 -If finds the item once more, sets a flag to true
 -Exits the checking of the array
 -Does a splice of the item it wants to drop and uses the new array
@@ -231,6 +232,11 @@ For the equip of an item:
 -If the user specifies the direction of equip, pass the direction, else, default(1st left)
 -If exists, enter saxios
 
+For grabbing an item:
+-check the roomObjectsInv array
+-If that object exists, get the index
+-Splice the object from the array and use the spliced array now
+-Enter saxios
 
 
 

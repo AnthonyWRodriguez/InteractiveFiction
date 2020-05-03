@@ -28,7 +28,7 @@ module.exports = (db) =>{
             var healHerb = "Healing Herb";
             var shield = "Iron Shield";
             var fist = "Fist";
-            var room = new ObjectID("5eacf27a2c15fc3cbcc80c6a");
+            var room = new ObjectID("5eae5849ed6b166964fdbb2c");
             var user = Object.assign(
                 {},
                 userTemplate,
@@ -79,7 +79,7 @@ module.exports = (db) =>{
                     "userInventory": inv
                 },
                 $push:{
-                    "userProgress.$[r].roomDropped": obj
+                    "userProgress.$[r].roomObjectsInv": obj
                 }
             };    
         }else{
@@ -90,7 +90,7 @@ module.exports = (db) =>{
                         "userLeftEquip": "Fist"
                     },
                     $push:{
-                        "userProgress.$[r].roomDropped": obj
+                        "userProgress.$[r].roomObjectsInv": obj
                     }
                 };
             }else{
@@ -100,7 +100,7 @@ module.exports = (db) =>{
                         "userRightEquip": "Fist"
                     },
                     $push:{
-                        "userProgress.$[r].roomDropped": obj
+                        "userProgress.$[r].roomObjectsInv": obj
                     }
                 };
             } 
@@ -109,6 +109,39 @@ module.exports = (db) =>{
             arrayFilters: [
                 {
                     "r._id":new ObjectID(room)
+                }
+            ],
+            multi: true,
+        };
+        userCollection.findOneAndUpdate(
+            query,
+            updateCommand,
+            filter,
+            (err, upd)=>{
+                if(err){
+                    console.log(err);
+                    return handler(err, null);
+                }
+                return handler(null, upd);
+            }
+        )
+    };
+
+    userModel.grabObject = (data, handler)=>{
+        var {idU, idR, obj, objs} = data;
+        var query = {"_id":new ObjectID(idU)};
+        var updateCommand = {
+            $push:{
+                "userInventory": obj
+            },
+            $set:{
+                "userProgress.$[r].roomObjectsInv": objs
+            }
+        };
+        var filter = {
+            arrayFilters: [
+                {
+                    "r._id":new ObjectID(idR)
                 }
             ],
             multi: true,

@@ -35,8 +35,24 @@ function initUser (db) {
             "inv": a,
             ...req.body
         }
-        console.log(a);
         userModel.dropObject(data, (err, drop)=>{
+            if(err){
+                console.log(err);
+                return res.status(500).json({"msg":"Error"});
+            }
+            return res.status(200).json(drop);
+        });
+    });
+
+    router.put('/grab', (req, res)=>{
+        var a = req.body.roomObjects;
+        a = a.replace(/'/g, '"');
+        a = JSON.parse(a);
+        var data = {
+            "objs": a,
+            ...req.body
+        }
+        userModel.grabObject(data, (err, drop)=>{
             if(err){
                 console.log(err);
                 return res.status(500).json({"msg":"Error"});
