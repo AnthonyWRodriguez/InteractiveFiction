@@ -3,7 +3,7 @@ var ObjectID = require('mongodb').ObjectID;
 module.exports = (db) =>{
     castleModel = {};
     var castleCollection = db.collection("castle");
-    var objectsInvCollection = db.collection("objectsInv");
+    var usersCollection = db.collection("users");
 
     var roomTemplate = {
         roomName: "",
@@ -79,7 +79,38 @@ module.exports = (db) =>{
                     console.log(err);
                     return handler(err, null);
                 }
-                return handler(null, {"msg":"The update was a success"});
+                var query2 = {"userProgress":{"$elemMatch":{"_id": new ObjectID(_id)}}};
+                var updateCommand2 = {
+                    $set:{
+                        "userProgress.$[r].roomName": name,
+                        "userProgress.$[r].roomEnter": enter,
+                        "userProgress.$[r].roomLook": look,
+                        "userProgress.$[r].roomLeft": left,
+                        "userProgress.$[r].roomRight": right,
+                        "userProgress.$[r].roomForward": forward,
+                        "userProgress.$[r].roomBackward": backward
+                    }
+                };
+                var filter = {
+                    arrayFilters: [
+                        {
+                            "r._id":new ObjectID(_id)
+                        }
+                    ],
+                    multi: true,
+                };
+                usersCollection.updateMany(
+                    query2,
+                    updateCommand2,
+                    filter,
+                    (err, upds)=>{
+                        if(err){
+                            console.log(err);
+                            return handler(err, null);
+                        }
+                        return handler(null, {"msg":"The update was a success"});
+                    }
+                )
             }
         )
     };
