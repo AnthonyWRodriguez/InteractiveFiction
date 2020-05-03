@@ -53,6 +53,17 @@ function initCastle (db) {
         });
     });
 
+    router.put('/addObjectEnv', (req, res)=>{
+        var data = req.body;
+        castleModel.addObjectEnv(data, (err, upd)=>{
+            if(err){
+                console.log(err);
+                return res.status(500).json({"msg":"Error"});
+            }
+            return res.status(200).json(upd);
+        });
+    });
+
     return router;
 
 }

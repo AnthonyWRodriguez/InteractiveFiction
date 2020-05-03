@@ -105,6 +105,27 @@ module.exports = (db) =>{
         )
     }
 
+    castleModel.addObjectEnv = (data, handler)=>{
+        var {idRoom, nameObj} = data;
+        var query = {"_id": new ObjectID(idRoom)};
+        var updateCommand = {
+            $push:{
+                "roomObjectsEnv": nameObj
+            }
+        };
+        castleCollection.findOneAndUpdate(
+            query,
+            updateCommand,
+            (err, upd)=>{
+                if(err){
+                    console.log(err);
+                    return handler(err, null);
+                }
+                return handler(null, upd);
+            }
+        )
+    }
+
     return castleModel;
 
 }

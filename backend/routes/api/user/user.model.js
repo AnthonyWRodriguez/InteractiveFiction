@@ -10,6 +10,8 @@ module.exports = (db) =>{
         userName: "",
         userProgress: "",
         userInventory: [],
+        userLeftEquip: "",
+        userRightEquip: "",
         userCurrentRoom: "",
         userRole: "",
         userActive: false
@@ -23,6 +25,7 @@ module.exports = (db) =>{
             }
             var name = data;
             var sword = "Steel Sword";
+            var fist = "Fist";
             var room = new ObjectID("5eacf27a2c15fc3cbcc80c6a");
             var user = Object.assign(
                 {},
@@ -31,6 +34,8 @@ module.exports = (db) =>{
                     userName: name,
                     userProgress: res,
                     userInventory: [sword],
+                    userLeftEquip: fist,
+                    userRightEquip: fist,
                     userCurrentRoom: room,
                     userRole: "player",
                     userActive: true
