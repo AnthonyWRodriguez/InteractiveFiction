@@ -40,21 +40,53 @@ module.exports = (db) =>{
                 objectClose: close,
                 objectClimb: climb,
                 objectBurn: burn,
-                ibjectShoot: shoot,
+                objectShoot: shoot,
                 objectShatter: shatter,
                 objectInteracted: false,
                 objectHelp: help
             }
         );
         objectsCollection.insertOne(object, (err, object)=>{
+            if(err){
+                console.log(err);
+                return handler(err, null);
+            }
+            return handler(null, object.ops);
+        })
+    };
+
+    objectsModel.updateObject = (data, handler)=>{
+        var {id, name, desc, push, pull, read, open, close, climb, burn, shoot, shatter, help} = data;
+        var query = {"_id": new ObjectID(id)};
+        var updateCommand = {
+            $set:{
+                objectName: name,
+                objectDesc: desc,
+                objectPush: push,
+                objectPull: pull,
+                objectRead: read,
+                objectOpen: open,
+                objectClose: close,
+                objectClimb: climb,
+                objectBurn: burn,
+                objectShoot: shoot,
+                objectShatter: shatter,
+                objectInteracted: false,
+                objectHelp: help
+            }
+        }
+        objectsCollection.findOneAndUpdate(
+            query,
+            updateCommand,
+            (err, upd)=>{
                 if(err){
                     console.log(err);
                     return handler(err, null);
                 }
-                return handler(null, object.ops);
+                return handler(null, upd.value);
             }
         )
-    };
+    }
 
         
     return objectsModel;
