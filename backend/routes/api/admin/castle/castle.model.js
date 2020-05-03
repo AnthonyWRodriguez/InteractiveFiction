@@ -3,6 +3,7 @@ var ObjectID = require('mongodb').ObjectID;
 module.exports = (db) =>{
     castleModel = {};
     var castleCollection = db.collection("castle");
+    var objectsInvCollection = db.collection("objectsInv");
 
     var roomTemplate = {
         roomName: "",
@@ -82,6 +83,27 @@ module.exports = (db) =>{
             }
         )
     };
+
+    castleModel.addObjectInv = (data, handler)=>{
+        var {idRoom, nameObj} = data;
+        var query = {"_id": new ObjectID(idRoom)};
+        var updateCommand = {
+            $push:{
+                "roomObjectsInv": nameObj
+            }
+        };
+        castleCollection.findOneAndUpdate(
+            query,
+            updateCommand,
+            (err, upd)=>{
+                if(err){
+                    console.log(err);
+                    return handler(err, null);
+                }
+                return handler(null, upd);
+            }
+        )
+    }
 
     return castleModel;
 

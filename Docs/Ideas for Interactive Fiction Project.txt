@@ -182,6 +182,13 @@ Weapon basic stats:
 (no idea what else)
 
 
+/*
+Important
+Have a basic room entrance
+And depending on whether an item has been interacted or not, alter the room description
+*/
+
+
 
 Plot-twist: the queen wanted you dead, and started shouting and cursing everything to get you killed
 

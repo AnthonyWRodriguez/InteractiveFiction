@@ -11,6 +11,7 @@ module.exports = (db) =>{
         userProgress: "",
         userInventory: [],
         userCurrentRoom: "",
+        userRole: "",
         userActive: false
     }
 
@@ -29,8 +30,9 @@ module.exports = (db) =>{
                 {
                     userName: name,
                     userProgress: res,
-                    userInventory: [sword, sword],
+                    userInventory: [sword],
                     userCurrentRoom: room,
+                    userRole: "player",
                     userActive: true
                 }
             );
