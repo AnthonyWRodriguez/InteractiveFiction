@@ -1,0 +1,12 @@
+.container ::placeholder{
+    color: white;
+    opacity: 1;
+}
+
+.container :-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: white;
+}
+   
+.container ::-ms-input-placeholder { /* Microsoft Edge */
+    color: white;
+}
