@@ -6,7 +6,7 @@ export default()=>{
     return(
         <Page>
             <div className="container">
-                <button type="button" className="btn btn-primary col-sm-12">PLAY</button>
+                <button type="button" className="btn btn-danger col-sm-12">PLAY</button>
             </div>
         </Page>
     )

@@ -7,8 +7,9 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
     }
     render(){
         return(
-            <header>
-                <h1 className="col-sm-12 p-2 bg-dark text-danger">Adventure!</h1>
+            <header className="d-flex bg-dark">
+                <h1 className="col-sm-12 p-2 text-danger">Adventure!</h1>
+
             </header>
         )
     }

@@ -9,8 +9,8 @@
 
 main{
     height: 100vh;
-    margin-top: -74px;
-    padding-top: 74px;
+    margin-top: -72px;
+    padding-top: 72px;
 }
 
 @media (min-width: 415px) {
