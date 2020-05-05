@@ -1,14 +1,16 @@
 import React from 'react';
 import Header from '../Header/Header';
+import './Page.css';
 
 interface IPageProps{
 }
 
-export default (props: IPageProps)=>{
+export default (props: React.PropsWithChildren<IPageProps>)=>{
     return(
-        <section>
+        <section className="fill">
             <Header></Header>
-            <main>
+            <main className="d-flex align-items-center">
+                {props.children}
             </main>
         </section>
     )

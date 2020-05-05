@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import 'bootstrap/dist/css/bootstrap.css';
 
 export default class Header extends Component<IHeaderProps, IHeaderState>{
     constructor(props: IHeaderProps){
@@ -7,7 +8,7 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
     render(){
         return(
             <header>
-                <h1>THIS HEADER IS IMPORTANT</h1>
+                <h1 className="col-sm-12 p-2 bg-dark text-danger">Adventure!</h1>
             </header>
         )
     }
