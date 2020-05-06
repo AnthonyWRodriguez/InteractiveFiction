@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import Page from '../../Page';
 import 'bootstrap/dist/css/bootstrap.css';
-import {emailRegex, emptyRegex} from '../../../Common/Validators/Validators';
+import {emailRegex, emptyRegex, badEmail} from '../../../Common/Validators/Validators';
 import Input from '../../../Common/Input/Input';
+import { naxios } from '../../../Utilities/Utilities';
 
 export default class Header extends Component<IHeaderProps, IHeaderState>{
     constructor(props: IHeaderProps){
@@ -45,7 +46,27 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
     onClickBtn = (e: React.MouseEvent<HTMLButtonElement>)=>{
         e.preventDefault();
         e.stopPropagation();
-
+        let errors:object = this.validate(["email", this.state.email ]);
+        const str:string = "emailError";
+        if(errors==={str: {}}){
+            this.setState({...this.state, ...errors});
+        }else{
+            if(
+                badEmail.test(this.state.email)||
+                this.state.email === "test@test.test"||
+                this.state.email === "test@test.com"||
+                this.state.email === "demo@demo.demo"||
+                this.state.email === "demo@demo.com"
+                
+            ){
+                alert("Please use a reasonable email address")
+            }
+            else if(this.state.email === "easter@egg.com"){
+                alert("Easter Egg found! Congratulations!");
+            }else{
+                const email = this.state.email;
+            }
+        }
     }
     render(){
         return(
@@ -54,7 +75,7 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
                     <Input 
                         type="text" 
                         className="form-control bg-transparent text-white" 
-                        caption=""
+                        caption="Email"
                         aria-label="Default" 
                         aria-describedby="inputGroup-sizing-default"
                         placeholder="Enter your email"
