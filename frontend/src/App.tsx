@@ -3,8 +3,8 @@ import {BrowserRouter as Router, Route,Switch,Redirect} from "react-router-dom";
 import Home from './Components/Pages/Public/Home/Home';
 import Login from './Components/Pages/Public/Login/Login';
 
-class App extends Component{
-  constructor(props: object){
+class App extends Component<IHeaderProps, IHeaderState>{
+  constructor(props: IHeaderProps){
     super(props);
     this.state = {
 
@@ -23,3 +23,11 @@ class App extends Component{
 }
 
 export default App;
+
+interface IHeaderProps{
+
+}
+
+interface IHeaderState{
+
+}

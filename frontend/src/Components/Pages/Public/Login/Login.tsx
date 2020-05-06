@@ -3,7 +3,7 @@ import Page from '../../Page';
 import 'bootstrap/dist/css/bootstrap.css';
 import {emailRegex, emptyRegex, badEmail} from '../../../Common/Validators/Validators';
 import Input from '../../../Common/Input/Input';
-import { naxios, AxiosRequestConfig } from '../../../Utilities/Utilities';
+import { naxios} from '../../../Utilities/Utilities';
 
 export default class Header extends Component<IHeaderProps, IHeaderState>{
     constructor(props: IHeaderProps){
@@ -46,9 +46,10 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
     onClickBtn = (e: React.MouseEvent<HTMLButtonElement>)=>{
         e.preventDefault();
         e.stopPropagation();
-        let errors:object = this.validate(["email", this.state.email ]);
-        const str:string = "emailError";
-        if(errors==={str: {}}){
+        let name = "email";
+        let value = this.state.email;
+        let errors:object = this.validate([name, value]);
+        if(this.state.emailError.length){
             this.setState({...this.state, ...errors});
         }else{
             if(
@@ -65,19 +66,20 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
                 alert("Easter Egg found! Congratulations!");
             }else{
                 const email = this.state.email;
-                console.log(email)
                 naxios.get(
                     `/api/user/myUser/${email}`
                 )
                 .then(
                     ({data})=>{
-                        alert("IT WORKED!");
-                        console.log(data);
+                        if(data===null){
+                            alert("El usuario no existe. Redirigiendo a crear usuario");
+                        }else{
+                            alert("Si existe el usuario");
+                        }
                     }
                 )
                 .catch(
                     (err)=>{
-                        alert("It didnt work...");
                         console.log(err); 
                     }
                 )
