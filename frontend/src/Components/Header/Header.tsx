@@ -10,11 +10,8 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
     render(){
         return(
             <header className="d-flex bg-dark align-items-center">
-                <h1 className="col-sm-11 p-2 text-danger">Adventure!</h1>
-                <Link to="/login" className="col-sm-1 align-items-left">
-                    Login
-                    <IoIosLogIn/>
-                </Link>
+                <Link to="/" className="col-sm-11 p-2 text-danger"><h1 >Adventure!</h1></Link>
+                <Link to="/login" className="col-sm-1 align-items-ccenter"><h4>Login<IoIosLogIn/></h4></Link>
             </header>
         )
     }

@@ -10,3 +10,7 @@
 .container ::-ms-input-placeholder { /* Microsoft Edge */
     color: white;
 }
+
+fieldset span{
+    color: white;
+}
