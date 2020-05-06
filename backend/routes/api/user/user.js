@@ -6,7 +6,7 @@ function initUser (db) {
     var userModel = require('./user.model')(db);
 
     router.post('/new', (req, res)=>{
-        var data = req.body.name;
+        var data = req.body;
         userModel.newUser(data, (err,user)=>{
             if(err){
                 console.log(err);
@@ -16,8 +16,8 @@ function initUser (db) {
         });
     });
 
-    router.get('/myUser', (req, res)=>{
-        var data = req.body.id;
+    router.get('/myUser/:email', (req, res)=>{
+        var data = req.params.email;
         userModel.currentUser(data, (err, user)=>{
             if(err){
                 console.log(err);

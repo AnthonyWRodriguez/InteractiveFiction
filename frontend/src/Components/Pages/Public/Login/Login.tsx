@@ -3,7 +3,7 @@ import Page from '../../Page';
 import 'bootstrap/dist/css/bootstrap.css';
 import {emailRegex, emptyRegex, badEmail} from '../../../Common/Validators/Validators';
 import Input from '../../../Common/Input/Input';
-import { naxios } from '../../../Utilities/Utilities';
+import { naxios, AxiosRequestConfig } from '../../../Utilities/Utilities';
 
 export default class Header extends Component<IHeaderProps, IHeaderState>{
     constructor(props: IHeaderProps){
@@ -65,6 +65,22 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
                 alert("Easter Egg found! Congratulations!");
             }else{
                 const email = this.state.email;
+                console.log(email)
+                naxios.get(
+                    `/api/user/myUser/${email}`
+                )
+                .then(
+                    ({data})=>{
+                        alert("IT WORKED!");
+                        console.log(data);
+                    }
+                )
+                .catch(
+                    (err)=>{
+                        alert("It didnt work...");
+                        console.log(err); 
+                    }
+                )
             }
         }
     }

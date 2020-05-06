@@ -8,6 +8,7 @@ module.exports = (db) =>{
 
     var userTemplate ={
         userName: "",
+        userEmail: "",
         userProgress: "",
         userInventory: [],
         userLeftEquip: "",
@@ -23,7 +24,7 @@ module.exports = (db) =>{
                 console.log(err);
                 return handler(err, null);
             }
-            var name = data;
+            var {name, email} = data;
             var sword = "Steel Sword";
             var healHerb = "Healing Herb";
             var shield = "Iron Shield";
@@ -34,6 +35,7 @@ module.exports = (db) =>{
                 userTemplate,
                 {
                     userName: name,
+                    userEmail: email,
                     userProgress: res,
                     userInventory: [sword, healHerb, healHerb, shield],
                     userLeftEquip: fist,
@@ -55,8 +57,8 @@ module.exports = (db) =>{
     };
 
     userModel.currentUser = (data, handler)=>{
-        var id = data;
-        var query = {"_id": new ObjectID(id)};
+        var email = data;
+        var query = {"userEmail": email};
         userCollection.findOne(
             query,
             (err, user)=>{
