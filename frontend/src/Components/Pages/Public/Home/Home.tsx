@@ -1,12 +1,13 @@
 import React from 'react';
 import Page from '../../Page';
 import 'bootstrap/dist/css/bootstrap.css';
+import {IAuth} from '../../../Common/Interfaces/Interfaces';
 
-export default()=>{
+export default(props: React.PropsWithChildren<IAuth>)=>{
     return(
-        <Page>
+        <Page auth={props.auth}>
             <div className="container">
-                <button type="button" className="btn btn-danger col-sm-12">PLAY</button>
+                <button className="btn btn-danger col-sm-12">PLAY</button>
             </div>
         </Page>
     )

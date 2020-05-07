@@ -1,6 +1,6 @@
 import React from 'react';
 import './Input.css'
-interface IPageProps{
+interface IInputProps{
     name: string, 
     value: string, 
     type: string, 
@@ -11,7 +11,7 @@ interface IPageProps{
     placeholder: string
 }
 
-export default (props: React.PropsWithChildren<IPageProps>)=>{
+export default (props: React.PropsWithChildren<IInputProps>)=>{
     return(
         <fieldset>
             <legend className="main-color">{props.caption}</legend>

@@ -4,13 +4,17 @@ import 'bootstrap/dist/css/bootstrap.css';
 import {emailRegex, emptyRegex, badEmail} from '../../../Common/Validators/Validators';
 import Input from '../../../Common/Input/Input';
 import { naxios} from '../../../Utilities/Utilities';
+import { IAuth } from '../../../Common/Interfaces/Interfaces';
+import { Redirect } from 'react-router-dom';
 
-export default class Header extends Component<IHeaderProps, IHeaderState>{
-    constructor(props: IHeaderProps){
+export default class Login extends Component<IAuth, ILoginState>{
+    constructor(props: IAuth){
         super(props);
         this.state={
             email:'',
-            emailError: []
+            emailError: [],
+            redirect: false,
+            redirectTo: '',
         }
     }
     validate = (state: [string, string])=>{
@@ -30,7 +34,7 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
         const {name, value} = e.currentTarget;
         let errors:object = this.validate([name, value]);
         let str:string = name+"Error";
-        if(errors==={str: {}}){
+        if(this.state.emailError.length){
             this.setState({
                 ...this.state,
                 [name]:value,
@@ -49,7 +53,7 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
         let name = "email";
         let value = this.state.email;
         let errors:object = this.validate([name, value]);
-        if(this.state.emailError.length){
+        if(this.state.emailError.length || value===''){
             this.setState({...this.state, ...errors});
         }else{
             if(
@@ -73,8 +77,17 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
                     ({data})=>{
                         if(data===null){
                             alert("El usuario no existe. Redirigiendo a crear usuario");
+                            this.setState({
+                                ...this.state,
+                                redirect: true,
+                                redirectTo: '/new'
+                            })
                         }else{
-                            alert("Si existe el usuario");
+                            this.setState({
+                                ...this.state,
+                                redirect: true,
+                                redirectTo: '/'
+                            })
                         }
                     }
                 )
@@ -87,8 +100,12 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
         }
     }
     render(){
+        if(this.state.redirect){
+            const dir:string = (this.state.redirectTo||'/');
+            return (<Redirect to={dir} />);
+        }
         return(
-            <Page>
+            <Page auth={this.props.auth}>
                 <div className="container">
                     <Input 
                         type="text" 
@@ -113,11 +130,10 @@ export default class Header extends Component<IHeaderProps, IHeaderState>{
         )
     }
 }
-interface IHeaderProps{
 
-}
-
-interface IHeaderState{
+interface ILoginState{
     email: string;
     emailError: string[];
+    redirect: boolean;
+    redirectTo: string;
 }
