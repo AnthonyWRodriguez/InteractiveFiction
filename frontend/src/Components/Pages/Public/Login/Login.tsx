@@ -77,6 +77,7 @@ export default class Login extends Component<IAuth, ILoginState>{
                     ({data})=>{
                         if(data===null || data ===undefined){
                             alert("The user doesn't exist. Redirecting toward creating a new user");
+                            this.props.auth.email = this.state.email;
                             this.setState({
                                 ...this.state,
                                 redirect: true,
@@ -118,8 +119,6 @@ export default class Login extends Component<IAuth, ILoginState>{
                         type="text" 
                         className="form-control bg-transparent text-white" 
                         caption="Email"
-                        aria-label="Default" 
-                        aria-describedby="inputGroup-sizing-default"
                         placeholder="Enter your email"
                         name="email"
                         error={this.state.emailError}                        

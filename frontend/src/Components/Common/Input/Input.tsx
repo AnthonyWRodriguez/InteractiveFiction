@@ -5,8 +5,8 @@ interface IInputProps{
     value: string, 
     type: string, 
     caption: string, 
-    onChange: any, 
-    error: object, 
+    onChange?: any, 
+    error?: object, 
     className: string,
     placeholder: string
 }

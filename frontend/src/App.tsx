@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {BrowserRouter as Router, Route,Switch,Redirect} from "react-router-dom";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import { setLocalStorage, getLocalStorage, removeLocalStorage } from './Components/Utilities/Utilities';
 import Home from './Components/Pages/Public/Home/Home';
 import Login from './Components/Pages/Public/Login/Login';
-import { setLocalStorage, getLocalStorage, removeLocalStorage } from './Components/Utilities/Utilities';
+import New from './Components/Pages/Public/New/New';
 
 class App extends Component<IAppProps, IAppState>{
   constructor(props: IAppProps){
@@ -32,7 +33,7 @@ class App extends Component<IAppProps, IAppState>{
   }
   render(){
     const auth = {
-      name: this.state.username,
+      email: this.state.useremail,
       logout: this.logout
     }
     return(
@@ -40,6 +41,7 @@ class App extends Component<IAppProps, IAppState>{
         <Switch>
           <Route render={(props) => { return (<Home {...props} auth={auth}/>) }} path="/" exact />
           <Route render={(props) => { return (<Login {...props} auth={auth} log_in={this.login} />)}} path="/login" exact/>
+          <Route render={(props) => { return (<New {...props} auth={auth}/>)}} path='/new' exact/>
         </Switch>
       </Router>
     )

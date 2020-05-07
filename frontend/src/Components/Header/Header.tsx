@@ -22,7 +22,7 @@ export default class Header extends Component<IAuth, IHeaderState>{
             const dir:string = (this.state.redirectTo||'/');
             return (<Redirect to={dir} />);
         }
-        if(this.props.auth.name===""){
+        if(this.props.auth.email===""){
             return(
                 <header className="d-flex bg-dark align-items-center">
                     <Link to="/" className="col-sm-11 p-2 text-danger"><h1 >Adventure!</h1></Link>

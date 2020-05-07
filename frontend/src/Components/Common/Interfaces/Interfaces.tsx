@@ -1,6 +1,6 @@
 export interface IAuth {
     auth:{
-        name: string;
+        email: string;
         logout?:()=>void;
     };
     log_in?: (arg0: string, arg1: string)=>void;
