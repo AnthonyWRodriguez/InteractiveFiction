@@ -3,7 +3,7 @@ import Page from '../../Page';
 import 'bootstrap/dist/css/bootstrap.css';
 import {emailRegex, emptyRegex, badEmail} from '../../../Common/Validators/Validators';
 import Input from '../../../Common/Input/Input';
-import { naxios} from '../../../Utilities/Utilities';
+import { naxios, removeLocalStorage, setLocalStorage} from '../../../Utilities/Utilities';
 import { IAuth } from '../../../Common/Interfaces/Interfaces';
 import { Redirect } from 'react-router-dom';
 
@@ -17,10 +17,10 @@ export default class Login extends Component<IAuth, ILoginState>{
             redirectTo: '',
         }
     }
-    validate = (state: [string, string])=>{
+    validate = (val:string)=>{
         let nameErrors:object = {};
         let tmpErrors:string[] = [];
-        const email:string = state[1];
+        const email:string = val;
         if(email !== undefined){
             if((!(emailRegex.test(email)))||(emptyRegex.test(email))){
                 tmpErrors.push("Please type an email with a correct format");
@@ -32,8 +32,8 @@ export default class Login extends Component<IAuth, ILoginState>{
     }
     onChangeText = (e: React.ChangeEvent<HTMLInputElement>)=>{
         const {name, value} = e.currentTarget;
-        let errors:object = this.validate([name, value]);
-        let str:string = name+"Error";
+        let errors:object = this.validate(value);
+        let str:string = "emailError";
         if(this.state.emailError.length){
             this.setState({
                 ...this.state,
@@ -50,9 +50,8 @@ export default class Login extends Component<IAuth, ILoginState>{
     onClickBtn = (e: React.MouseEvent<HTMLButtonElement>)=>{
         e.preventDefault();
         e.stopPropagation();
-        let name = "email";
         let value = this.state.email;
-        let errors:object = this.validate([name, value]);
+        let errors:object = this.validate(value);
         if(this.state.emailError.length || value===''){
             this.setState({...this.state, ...errors});
         }else{
@@ -77,19 +76,19 @@ export default class Login extends Component<IAuth, ILoginState>{
                     ({data})=>{
                         if(data===null || data ===undefined){
                             alert("The user doesn't exist. Redirecting toward creating a new user");
-                            this.props.auth.email = this.state.email;
                             this.setState({
                                 ...this.state,
                                 redirect: true,
                                 redirectTo: '/new'
+                            },()=>{
+                                setLocalStorage("potentialEmail",this.state.email);
                             })
                         }else if(!data.userActive){
                             alert("Your user has been deactivated. Have a great day");
                         }
                         else{
-                            if(this.props.log_in){
-                                console.log(data);
-                                this.props.log_in(data.userName, data.userEmail);
+                            if(this.props.login){
+                                this.props.login(data.userName, data.userEmail);
                                 this.setState({
                                     ...this.state,
                                     redirect: true,
@@ -108,6 +107,7 @@ export default class Login extends Component<IAuth, ILoginState>{
         }
     }
     render(){
+        removeLocalStorage("potentialEmail");
         if(this.state.redirect){
             const dir:string = (this.state.redirectTo||'/');
             return (<Redirect to={dir} />);

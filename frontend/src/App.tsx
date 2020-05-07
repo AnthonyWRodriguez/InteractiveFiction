@@ -34,13 +34,14 @@ class App extends Component<IAppProps, IAppState>{
   render(){
     const auth = {
       email: this.state.useremail,
+      name: this.state.username,
       logout: this.logout
     }
     return(
       <Router>
         <Switch>
           <Route render={(props) => { return (<Home {...props} auth={auth}/>) }} path="/" exact />
-          <Route render={(props) => { return (<Login {...props} auth={auth} log_in={this.login} />)}} path="/login" exact/>
+          <Route render={(props) => { return (<Login {...props} auth={auth} login={this.login} />)}} path="/login" exact/>
           <Route render={(props) => { return (<New {...props} auth={auth}/>)}} path='/new' exact/>
         </Switch>
       </Router>

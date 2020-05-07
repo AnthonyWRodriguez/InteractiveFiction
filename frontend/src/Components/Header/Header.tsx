@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Link, Redirect } from 'react-router-dom'; 
+import { Link } from 'react-router-dom'; 
 import { IoIosLogIn, IoIosLogOut } from 'react-icons/io'
 import 'bootstrap/dist/css/bootstrap.css';
 import { IAuth } from '../Common/Interfaces/Interfaces';
@@ -8,8 +8,6 @@ export default class Header extends Component<IAuth, IHeaderState>{
     constructor(props: IAuth){
         super(props);
         this.state = {
-            redirect: false,
-            redirectTo: "/"
         }
     }
     onClickLogout = ()=>{
@@ -18,10 +16,6 @@ export default class Header extends Component<IAuth, IHeaderState>{
         }
     }
     render(){
-        if(this.state.redirect){
-            const dir:string = (this.state.redirectTo||'/');
-            return (<Redirect to={dir} />);
-        }
         if(this.props.auth.email===""){
             return(
                 <header className="d-flex bg-dark align-items-center">
@@ -41,6 +35,5 @@ export default class Header extends Component<IAuth, IHeaderState>{
 }
 
 interface IHeaderState{
-    redirect: boolean;
-    redirectTo: string;
+
 }

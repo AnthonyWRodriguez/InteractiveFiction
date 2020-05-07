@@ -22,7 +22,7 @@ export default (props: React.PropsWithChildren<IInputProps>)=>{
             />
             <br/>
             <br/>
-            {(props.error && true) ? (<span className="center orange">{props.error}</span>) : null}
+            {(props.error && true) ? (<span className="center orange font-weight-bold">{props.error}</span>) : null}
         </fieldset>
     );
 }
