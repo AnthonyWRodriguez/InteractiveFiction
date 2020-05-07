@@ -75,19 +75,26 @@ export default class Login extends Component<IAuth, ILoginState>{
                 )
                 .then(
                     ({data})=>{
-                        if(data===null){
-                            alert("El usuario no existe. Redirigiendo a crear usuario");
+                        if(data===null || data ===undefined){
+                            alert("The user doesn't exist. Redirecting toward creating a new user");
                             this.setState({
                                 ...this.state,
                                 redirect: true,
                                 redirectTo: '/new'
                             })
-                        }else{
-                            this.setState({
-                                ...this.state,
-                                redirect: true,
-                                redirectTo: '/'
-                            })
+                        }else if(!data.userActive){
+                            alert("Your user has been deactivated. Have a great day");
+                        }
+                        else{
+                            if(this.props.log_in){
+                                console.log(data);
+                                this.props.log_in(data.userName, data.userEmail);
+                                this.setState({
+                                    ...this.state,
+                                    redirect: true,
+                                    redirectTo: '/'
+                                })    
+                            }
                         }
                     }
                 )
