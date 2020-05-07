@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {BrowserRouter as Router, Route,Switch,Redirect} from "react-router-dom";
 import Home from './Components/Pages/Public/Home/Home';
 import Login from './Components/Pages/Public/Login/Login';
-import { setLocalStorage, getLocalStorage } from './Components/Utilities/Utilities';
+import { setLocalStorage, getLocalStorage, removeLocalStorage } from './Components/Utilities/Utilities';
 
 class App extends Component<IAppProps, IAppState>{
   constructor(props: IAppProps){
@@ -22,15 +22,24 @@ class App extends Component<IAppProps, IAppState>{
     setLocalStorage("name", uName);
     setLocalStorage("email", uEmail);
   }
+  logout=()=>{
+    this.setState({
+      username: '',
+      useremail: ''
+    });
+    removeLocalStorage("name");
+    removeLocalStorage("email");
+  }
   render(){
     const auth = {
-      name: this.state.username
+      name: this.state.username,
+      logout: this.logout
     }
     return(
       <Router>
         <Switch>
           <Route render={(props) => { return (<Home {...props} auth={auth}/>) }} path="/" exact />
-          <Route render={(props) => { return (<Login {...props} auth={auth} log_in={this.login}/>)}} path="/login" exact/>
+          <Route render={(props) => { return (<Login {...props} auth={auth} log_in={this.login} />)}} path="/login" exact/>
         </Switch>
       </Router>
     )
