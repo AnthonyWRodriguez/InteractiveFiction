@@ -1,0 +1,9 @@
+div aside{
+    overflow-y:auto;
+    width: 85%;
+    min-width: 85%;
+    max-width: 85%;
+    height: 80vh;
+    max-height: 80vh;
+    min-height: 80vh;
+}
