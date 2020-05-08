@@ -53,12 +53,22 @@ export default class Game extends Component<IAuth, IGameState>{
     }
     onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>)=>{
         if(e.keyCode===13){
+            console.log(this.state.allText);
+            this.state.allText.push(this.state.command);
             let lower:string = this.state.command.toLowerCase();
             if(helpRegex.test(lower)){
                 this.state.allText.push("Help has been pressed");
             }else{
                 this.state.allText.push("Something else was typed");
             }
+            let emailS:string|null = (getLocalStorage("email")||"AAAAA");
+            saxios.put(
+                `/api/user/addCommand`,
+                {
+                    email: emailS,
+                    commands: this.state.allText
+                }
+            )
             this.setState({
                 command: ""
             },()=>{
@@ -69,14 +79,19 @@ export default class Game extends Component<IAuth, IGameState>{
     }
     render(){
         let num=0;
-        const uiItems:object = this.state.allText.map(
-            (item)=>{
-                num++;
-                return(
-                    <p key={num}>{item}</p>
-                )
-            }
-        );
+        let uiItems:object;
+        if(this.state.allText!==null){
+            uiItems = this.state.allText.map(
+                (item)=>{
+                    num++;
+                    return(
+                        <p key={num}>{item}</p>
+                    )
+                }
+            );    
+        }else{
+            uiItems = <p key="0">Empty</p>
+        }
         return(
                 <Page auth={this.props.auth}>
                     <div className="container d-flex flex-column align-items-center justify-content-center">
