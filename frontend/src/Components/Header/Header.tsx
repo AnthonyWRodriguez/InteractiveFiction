@@ -26,8 +26,8 @@ export default class Header extends Component<IAuth, IHeaderState>{
         }else{
             return(
                 <header className="d-flex bg-dark align-items-center">
-                    <Link to="/" className="col-sm-11 p-2 text-danger"><h1 >Adventure!</h1></Link>
-                    <Link to="/login" className="col-sm-1 align-items-ccenter"><h4 onClick={this.onClickLogout}>Logout<IoIosLogOut/></h4></Link>
+                    <Link to="/" className="col-sm-10 p-2 text-danger"><h1 >Adventure!</h1></Link>
+                    <Link to="/login" className="col-sm-2 align-items-ccenter"><h4 onClick={this.onClickLogout}>Logout<IoIosLogOut/></h4></Link>
                 </header>
             )                
         }

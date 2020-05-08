@@ -9,6 +9,7 @@ interface IInputProps{
     error?: object, 
     className: string,
     placeholder: string
+    keyDown?:any
 }
 
 export default (props: React.PropsWithChildren<IInputProps>)=>{
@@ -19,7 +20,8 @@ export default (props: React.PropsWithChildren<IInputProps>)=>{
                 <br/>
                 <input type={props.type||"text"} name={props.name} 
                 id={props.name} value={props.value} className={props.error ? props.className+' error': props.className}
-                onChange={(props.onChange || ((e)=>false))} placeholder={props.placeholder}
+                onChange={(props.onChange || ((e)=>false))} placeholder={props.placeholder} 
+                onKeyDown={(props.keyDown || ((e)=>false))}
                 />
                 <br/>
                 <br/>
@@ -31,7 +33,8 @@ export default (props: React.PropsWithChildren<IInputProps>)=>{
             <fieldset>
                 <input type={props.type||"text"} name={props.name} 
                 id={props.name} value={props.value} className={props.error ? props.className+' error': props.className}
-                onChange={(props.onChange || ((e)=>false))} placeholder={props.placeholder}
+                onChange={(props.onChange || ((e)=>false))} placeholder={props.placeholder} 
+                onKeyDown={(props.keyDown || ((e)=>false))}
                 />
                 <br/>
                 <br/>
@@ -46,6 +49,7 @@ export default (props: React.PropsWithChildren<IInputProps>)=>{
                 <input type={props.type||"text"} name={props.name} 
                 id={props.name} value={props.value} className={props.error ? props.className+' error': props.className}
                 onChange={(props.onChange || ((e)=>false))} placeholder={props.placeholder}
+                onKeyDown={(props.keyDown || ((e)=>false))}
                 />
             </fieldset>
         );
@@ -55,6 +59,7 @@ export default (props: React.PropsWithChildren<IInputProps>)=>{
                 <input type={props.type||"text"} name={props.name} 
                 id={props.name} value={props.value} className={props.error ? props.className+' error': props.className}
                 onChange={(props.onChange || ((e)=>false))} placeholder={props.placeholder}
+                onKeyDown={(props.keyDown || ((e)=>false))}
                 />
             </fieldset>
         );    

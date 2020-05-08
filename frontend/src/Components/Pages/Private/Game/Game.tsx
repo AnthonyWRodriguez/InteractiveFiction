@@ -48,7 +48,16 @@ export default class Game extends Component<IAuth, IGameState>{
         aside.scrollTop = aside.scrollHeight;
     }
     onChangeText = (e: React.ChangeEvent<HTMLInputElement>)=>{
-        console.log("THIS WORKS!!!");
+        const {name, value} = e.currentTarget;
+        this.setState({
+            ...this.state,
+            [name]:value,
+        });
+    }
+    onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>)=>{
+        if(e.keyCode===13){
+            alert("Ready to start making the magic happen");
+        }
     }
     render(){
         let num=0;
@@ -77,6 +86,7 @@ export default class Game extends Component<IAuth, IGameState>{
                             name="command"
                             value={this.state.command}
                             onChange={this.onChangeText}
+                            keyDown={this.onKeyPress}
                         ></Input>
                     </div>
                 </Page>
