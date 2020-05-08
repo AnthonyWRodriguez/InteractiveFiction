@@ -7,6 +7,13 @@ normalAxios.defaults.headers.put['Content-Type'] = "no-cache";
 
 export const naxios = normalAxios;
 
+let secureAxios = axios.create();
+secureAxios.defaults.headers.common['cache-control'] = "no-cache";
+secureAxios.defaults.headers.post['Content-Type'] = "no-cache";
+secureAxios.defaults.headers.put['Content-Type'] = "no-cache";
+
+export const saxios = secureAxios;
+
 const localStorageAvailable = (()=>{
     let b = 'b';
     try{

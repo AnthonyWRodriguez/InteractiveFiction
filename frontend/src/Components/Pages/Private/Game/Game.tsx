@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import Page from '../../Page';
 import { IAuth } from '../../../Common/Interfaces/Interfaces';
 import './Game.css';
-import { getLocalStorage } from '../../../Utilities/Utilities';
+import { getLocalStorage, saxios } from '../../../Utilities/Utilities';
 import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
+import { helpRegex } from '../../../Common/Validators/Validators';
 
 export default class Game extends Component<IAuth, IGameState>{
     constructor(props: IAuth){
@@ -12,7 +13,8 @@ export default class Game extends Component<IAuth, IGameState>{
         this.state={
             command: "",
             name: (getLocalStorage("name")||"AAAAA"),
-            allText: []
+            allText: [],
+            user: {}
         }
     }
     static getDerivedStateFromProps = (props:IAuth, state:IGameState)=>{
@@ -20,32 +22,27 @@ export default class Game extends Component<IAuth, IGameState>{
             alert("An error has ocurred. Please login again");
             return(<Redirect to="/login"/>);
         }
-        if(!state.allText.length){
-            state.allText.push(
-                `You start at the doors of a massive castle. 
-                You look at your surroundings: A wide open space. 
-                This castle has been constructed atop a cliff with no apparent way to enter or leave. 
-                A maiden's shouts can be faintly heard inside. 
-                You hear your name being called out.`,
-                `${state.name}!!! Save me!!!`,
-                `You try to force the door open, but it appears to be locked. 
-                The path behind you is gone beacuse the wooden bridge collapsed. 
-                You can go around the castle through the left or the right. `,
-                `As you start to feel you gain control over your whole body after daydreaming about
-                ... well... that's not important..., but after you regain body control, 
-                you hear a strange voice saying "Welcome to my world, dear player."`,
-                `"I'm the inner voice of your conscience. 
-                During this adventure you're about to embark, 
-                I will be the one in charge of guiding you. 
-                In case you need any help, you may type in 'help'"`,
-            )
-            return null;
-        }
-        return null;
+
+        return null;    
     }
     componentDidMount(){
-        let aside = document.getElementById("aside") as HTMLElement;
-        aside.scrollTop = aside.scrollHeight;
+        let email:string|null = (getLocalStorage("email")||"AAAAA");
+        saxios.get(
+            `/api/user/myUser/${email}`
+        )
+        .then(
+            ({data})=>{
+                this.setState({
+                    user: data,
+                    allText: data.userCommands
+                })
+            }
+        )
+        .catch(
+            (err)=>{
+                console.log(err);
+            }
+        )
     }
     onChangeText = (e: React.ChangeEvent<HTMLInputElement>)=>{
         const {name, value} = e.currentTarget;
@@ -56,7 +53,18 @@ export default class Game extends Component<IAuth, IGameState>{
     }
     onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>)=>{
         if(e.keyCode===13){
-            alert("Ready to start making the magic happen");
+            let lower:string = this.state.command.toLowerCase();
+            if(helpRegex.test(lower)){
+                this.state.allText.push("Help has been pressed");
+            }else{
+                this.state.allText.push("Something else was typed");
+            }
+            this.setState({
+                command: ""
+            },()=>{
+                let aside = document.getElementById("aside") as HTMLElement;
+                aside.scrollTop = aside.scrollHeight;
+            });
         }
     }
     render(){
@@ -97,4 +105,5 @@ interface IGameState{
     command: string;
     name: string|null;
     allText: string[];
+    user: object;
 }
