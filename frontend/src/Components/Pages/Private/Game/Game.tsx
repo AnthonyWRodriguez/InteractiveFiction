@@ -5,9 +5,8 @@ import './Game.css';
 import { getLocalStorage, saxios } from '../../../Utilities/Utilities';
 import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
-const ObjectID = require("mongodb").ObjectID;
-type ObjectID= typeof import("mongodb").ObjectID;
-import { helpRegex, exitRegex } from '../../../Common/Validators/Validators';
+import { ObjectID } from 'mongodb';
+
 
 export default class Game extends Component<IAuth, IGameState>{
     constructor(props: IAuth){
@@ -22,6 +21,21 @@ export default class Game extends Component<IAuth, IGameState>{
                 userInventory: [],
                 userLeftEquip: "",
                 userRightEquip: ""
+            },
+            room: {
+                roomName: "",
+                roomEnter: "",
+                roomEnterEnemy: "",
+                roomLook: "",
+                roomLeft: "",
+                roomRight: "",
+                roomForward: "",
+                roomBackward: "",
+                roomObjectsInv: [],
+                roomObjectsEnv: [],
+                roomEnemy: "",
+                roomEnemyHealth: 1,
+                roomEnemyAlive: false
             }
         }
     }
@@ -47,12 +61,14 @@ export default class Game extends Component<IAuth, IGameState>{
                     saxios.get(`/api/user/currentRoom/${this.state.user._id}/${this.state.user.userCurrentRoom}`)
                     .then(
                         ({data})=>{
-                            console.log(data);
+                            this.setState({
+                                room: data
+                            })
                         }
                     )
                     .catch(
                         (err)=>{
-                            console.log(data);  
+                            console.log(err);  
                         }
                     )
                     let aside = document.getElementById("aside") as HTMLElement;
@@ -91,36 +107,40 @@ export default class Game extends Component<IAuth, IGameState>{
     }
     onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>)=>{
         if(e.keyCode===13){
-            console.log(this.state.allText);
             this.state.allText.push(this.state.command);
             let lower:string = this.state.command.toLowerCase();
-            if(helpRegex.test(lower)){
+            const words:string[] = lower.split(" ");
+            let realWords:string[] = [];
+            words.forEach((word)=>{
+                if(word!==""){
+                    realWords.push(word);
+                }
+            });
+            if(realWords[0]==="help" && realWords.length===1){
                 this.state.allText.push(`Help is on its way. You have variouus ways of interacting with the world around you.
                 Just as you just used the verb "help", you can use other verbs to make this world change.
                 For instance, if you want to move, you type "move" and a direction. 
                 If you want to grab something, type "grab" followd by the object you want to try and grab.
                 In the spirit of encouraging exploration, try different verbs and see their effects!`);
-            }else if(exitRegex.test(lower)){
+            }else if(realWords[0]==="exit"){
                 this.state.allText.push(`Your progress is automatically saved every command you make.
                 If you want to exit, just press Logout or Adventure at the top of your screen`);
             }
             else{
-                const words:string[] = lower.split(" ");
-                let realWords:string[] = [];
-                words.forEach((word)=>{
-                    if(word!==""){
-                        realWords.push(word);
-                    }
-                });
-                console.log(realWords);
                 saxios.get(`api/user/allVerbs`)
                 .then(
                     ({data})=>{
                         let allV:IVerbs[] = data;
-                        allV.forEach((verb) => {
-                            if(verb.name===realWords[0]){
-                                console.log("The verb does exist");
-                            }else{
+                        let x:number = 0;
+                        let y:boolean = true;
+                        allV.forEach((verb) =>{
+                            if((realWords[0]==="help"||realWords[0]==="hint") && verb.name===realWords[1] && realWords.length===2){
+                                this.state.allText.push(verb.help);
+                                this.addAndSetState();
+                                y=false;
+                            }
+                            x++;
+                            if(x===allV.length && y){
                                 this.state.allText.push(`Thinking on what you just said... 
                                 you've got no idea what that means and decide to ignore your strange train of thought`); 
                                 this.addAndSetState();
@@ -180,16 +200,33 @@ interface IGameState{
     command: string;
     name: string|null;
     allText: string[];
-    user: {
-        _id: string;
-        userCurrentRoom: string;
-        userInventory: string[];
-        userLeftEquip: string;
-        userRightEquip: string;
-    };
+    user: IUser;
+    room: IRoom;
 }
 interface IVerbs{
     name: string;
     help: string;
     associateVerb: string;
+}
+interface IUser{
+    _id: string;
+    userCurrentRoom: string;
+    userInventory: string[];
+    userLeftEquip: string;
+    userRightEquip: string;
+}
+interface IRoom{
+    roomName: string;
+    roomEnter: string;
+    roomEnterEnemy: string;
+    roomLook: string;
+    roomLeft: ObjectID|string;
+    roomRight: ObjectID|string;
+    roomForward: ObjectID|string;
+    roomBackward: ObjectID|string;
+    roomObjectsInv: string[];
+    roomObjectsEnv: string[];
+    roomEnemy: string;
+    roomEnemyHealth: number;
+    roomEnemyAlive: boolean;
 }
