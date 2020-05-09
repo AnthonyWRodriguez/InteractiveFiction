@@ -5,6 +5,8 @@ import './Game.css';
 import { getLocalStorage, saxios } from '../../../Utilities/Utilities';
 import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
+const ObjectID = require("mongodb").ObjectID;
+type ObjectID= typeof import("mongodb").ObjectID;
 import { helpRegex, exitRegex } from '../../../Common/Validators/Validators';
 
 export default class Game extends Component<IAuth, IGameState>{
