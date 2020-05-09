@@ -5,7 +5,7 @@ import './Game.css';
 import { getLocalStorage, saxios } from '../../../Utilities/Utilities';
 import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
-import { helpRegex } from '../../../Common/Validators/Validators';
+import { helpRegex, exitRegex } from '../../../Common/Validators/Validators';
 
 export default class Game extends Component<IAuth, IGameState>{
     constructor(props: IAuth){
@@ -35,6 +35,9 @@ export default class Game extends Component<IAuth, IGameState>{
                 this.setState({
                     user: data,
                     allText: data.userCommands
+                },()=>{
+                    let aside = document.getElementById("aside") as HTMLElement;
+                    aside.scrollTop = aside.scrollHeight;
                 })
             }
         )
@@ -57,8 +60,16 @@ export default class Game extends Component<IAuth, IGameState>{
             this.state.allText.push(this.state.command);
             let lower:string = this.state.command.toLowerCase();
             if(helpRegex.test(lower)){
-                this.state.allText.push("Help has been pressed");
-            }else{
+                this.state.allText.push(`Help is on its way. You have variouus ways of interacting with the world around you.
+                Just as you just used the verb "help", you can use other verbs to make this world change.
+                For instance, if you want to move, you type "move" and a direction. 
+                If you want to grab something, type "grab" and the object you want to try and grab.
+                In the spirit of encouraging exploration, try different verbs and see their effects!`);
+            }else if(exitRegex.test(lower)){
+                this.state.allText.push(`Your progress is automatically saved every command you make.
+                If you want to exit, just press Logout or Adventure at the top of your screen`);
+            }
+            else{
                 this.state.allText.push("Something else was typed");
             }
             let emailS:string|null = (getLocalStorage("email")||"AAAAA");
