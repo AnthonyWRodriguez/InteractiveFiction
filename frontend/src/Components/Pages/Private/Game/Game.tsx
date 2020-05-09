@@ -71,6 +71,22 @@ export default class Game extends Component<IAuth, IGameState>{
             [name]:value,
         });
     }
+    addAndSetState = () =>{
+        let emailS:string|null = (getLocalStorage("email")||"AAAAA");
+        saxios.put(
+            `/api/user/addCommand`,
+            {
+                email: emailS,
+                commands: this.state.allText
+            }
+        )
+        this.setState({
+            command: ""
+        },()=>{
+            let aside = document.getElementById("aside") as HTMLElement;
+            aside.scrollTop = aside.scrollHeight;
+        });
+    }
     onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>)=>{
         if(e.keyCode===13){
             console.log(this.state.allText);
@@ -100,7 +116,13 @@ export default class Game extends Component<IAuth, IGameState>{
                     ({data})=>{
                         let allV:IVerbs[] = data;
                         allV.forEach((verb) => {
-                            console.log(verb.name);
+                            if(verb.name===realWords[0]){
+                                console.log("The verb does exist");
+                            }else{
+                                this.state.allText.push(`Thinking on what you just said... 
+                                you've got no idea what that means and decide to ignore your strange train of thought`); 
+                                this.addAndSetState();
+                            }
                         });
                     }
                 )
@@ -110,20 +132,7 @@ export default class Game extends Component<IAuth, IGameState>{
                     }
                 )
             }
-            let emailS:string|null = (getLocalStorage("email")||"AAAAA");
-            saxios.put(
-                `/api/user/addCommand`,
-                {
-                    email: emailS,
-                    commands: this.state.allText
-                }
-            )
-            this.setState({
-                command: ""
-            },()=>{
-                let aside = document.getElementById("aside") as HTMLElement;
-                aside.scrollTop = aside.scrollHeight;
-            });
+            this.addAndSetState();
         }
     }
     render(){
