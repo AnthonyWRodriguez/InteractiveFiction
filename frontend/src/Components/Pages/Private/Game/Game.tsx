@@ -14,7 +14,13 @@ export default class Game extends Component<IAuth, IGameState>{
             command: "",
             name: (getLocalStorage("name")||"AAAAA"),
             allText: [],
-            user: {}
+            user: {
+                _id:"",
+                userCurrentRoom: "",
+                userInventory: [],
+                userLeftEquip: "",
+                userRightEquip: ""
+            }
         }
     }
     static getDerivedStateFromProps = (props:IAuth, state:IGameState)=>{
@@ -36,6 +42,17 @@ export default class Game extends Component<IAuth, IGameState>{
                     user: data,
                     allText: data.userCommands
                 },()=>{
+                    saxios.get(`/api/user/currentRoom/${this.state.user._id}/${this.state.user.userCurrentRoom}`)
+                    .then(
+                        ({data})=>{
+                            console.log(data);
+                        }
+                    )
+                    .catch(
+                        (err)=>{
+                            console.log(data);  
+                        }
+                    )
                     let aside = document.getElementById("aside") as HTMLElement;
                     aside.scrollTop = aside.scrollHeight;
                 })
@@ -63,14 +80,35 @@ export default class Game extends Component<IAuth, IGameState>{
                 this.state.allText.push(`Help is on its way. You have variouus ways of interacting with the world around you.
                 Just as you just used the verb "help", you can use other verbs to make this world change.
                 For instance, if you want to move, you type "move" and a direction. 
-                If you want to grab something, type "grab" and the object you want to try and grab.
+                If you want to grab something, type "grab" followd by the object you want to try and grab.
                 In the spirit of encouraging exploration, try different verbs and see their effects!`);
             }else if(exitRegex.test(lower)){
                 this.state.allText.push(`Your progress is automatically saved every command you make.
                 If you want to exit, just press Logout or Adventure at the top of your screen`);
             }
             else{
-                this.state.allText.push("Something else was typed");
+                const words:string[] = lower.split(" ");
+                let realWords:string[] = [];
+                words.forEach((word)=>{
+                    if(word!==""){
+                        realWords.push(word);
+                    }
+                });
+                console.log(realWords);
+                saxios.get(`api/user/allVerbs`)
+                .then(
+                    ({data})=>{
+                        let allV:IVerbs[] = data;
+                        allV.forEach((verb) => {
+                            console.log(verb.name);
+                        });
+                    }
+                )
+                .catch(
+                    (err)=>{
+                        console.log(err);
+                    }
+                )
             }
             let emailS:string|null = (getLocalStorage("email")||"AAAAA");
             saxios.put(
@@ -131,5 +169,16 @@ interface IGameState{
     command: string;
     name: string|null;
     allText: string[];
-    user: object;
+    user: {
+        _id: string;
+        userCurrentRoom: string;
+        userInventory: string[];
+        userLeftEquip: string;
+        userRightEquip: string;
+    };
+}
+interface IVerbs{
+    name: string;
+    help: string;
+    associateVerb: string;
 }

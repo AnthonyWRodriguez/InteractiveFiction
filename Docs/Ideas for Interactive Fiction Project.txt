@@ -123,7 +123,7 @@ Possible verbs: (if possible, make abbreviations)
 -light/burn?
 -shoot?
 -break/shatter?(Possible excuse of not doing so is: "seeing how valuable that may be, and with your appreciation of this kind of objects, you decide not to break it")
--HELP! (it will be an exception and be put in the frontend)
+-help/hint (it will be an exception and be put in the frontend)
 (and to make it lightweight, it will be an exception to the "normal" object, where it will only have the description its supposed to show) 
 -default(something along the lines of "thinking on what you just said... you've got no idea what that means and decide to ignore your strange train of thought")
 
@@ -282,6 +282,15 @@ How will the command check work?
 7. If there is extra text, add an extra message after doing the saxios ("There was no need to add {extraText} at the end")
 
 
+
+
+
+
+Have a verb collection to cycle through all verbs easily
+Verb template:
+-Name (to locate each verb)
+-Help (if people write help {verb})
+-Asosciate verb (if verb has another verb, or if not, itself)
 
 
 
