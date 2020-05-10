@@ -6,6 +6,7 @@ import { getLocalStorage, saxios } from '../../../Utilities/Utilities';
 import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
 import { ObjectID } from 'mongodb';
+import { throws } from 'assert';
 
 
 export default class Game extends Component<IAuth, IGameState>{
@@ -36,12 +37,13 @@ export default class Game extends Component<IAuth, IGameState>{
                 roomEnemy: "",
                 roomEnemyHealth: 1,
                 roomEnemyAlive: false
-            }
+            },
+            interactables:[]
         }
     }
     static getDerivedStateFromProps = (props:IAuth, state:IGameState)=>{
         if(state.name==="AAAAA"){
-            alert("An error has ocurred. Please login again");
+            alert("An error has ocurred. Please log in again");
             return(<Redirect to="/login"/>);
         }
 
@@ -61,8 +63,22 @@ export default class Game extends Component<IAuth, IGameState>{
                     saxios.get(`/api/user/currentRoom/${this.state.user._id}/${this.state.user.userCurrentRoom}`)
                     .then(
                         ({data})=>{
+                            let aside = document.getElementById("aside") as HTMLElement;
+                            aside.scrollTop = aside.scrollHeight;
                             this.setState({
                                 room: data
+                            },()=>{
+                                saxios.get(`api/user/allVerbs`)
+                                .then(
+                                    ({data})=>{
+
+                                    }
+                                )
+                                .catch(
+                                    (err)=>{
+                                        console.log(err);   
+                                    }
+                                )
                             })
                         }
                     )
@@ -71,8 +87,7 @@ export default class Game extends Component<IAuth, IGameState>{
                             console.log(err);  
                         }
                     )
-                    let aside = document.getElementById("aside") as HTMLElement;
-                    aside.scrollTop = aside.scrollHeight;
+
                 })
             }
         )
@@ -116,7 +131,18 @@ export default class Game extends Component<IAuth, IGameState>{
                     realWords.push(word);
                 }
             });
-            if(realWords[0]==="help" && realWords.length===1){
+
+            let objectText:string = "";
+            if(realWords[2]!==undefined){
+                objectText = realWords[1]+" "+realWords[2]
+            }else{
+                objectText = realWords[1];
+            }
+
+            let verbText:string = "object"+realWords[0].charAt(0).toUpperCase()+realWords[0].slice(1);
+            console.log(verbText);
+
+            if((realWords[0]==="help" || realWords[0]==="hint") && realWords.length===1){
                 this.state.allText.push(`Help is on its way. You have variouus ways of interacting with the world around you.
                 Just as you just used the verb "help", you can use other verbs to make this world change.
                 For instance, if you want to move, you type "move" and a direction. 
@@ -126,21 +152,32 @@ export default class Game extends Component<IAuth, IGameState>{
                 this.state.allText.push(`Your progress is automatically saved every command you make.
                 If you want to exit, just press Logout or Adventure at the top of your screen`);
             }
+            else if(realWords.length===1){
+                this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
+                so please, after every verb, please choose an object to interact with`);
+            }
             else{
                 saxios.get(`api/user/allVerbs`)
                 .then(
                     ({data})=>{
                         let allV:IVerbs[] = data;
+                        console.log(allV);
                         let x:number = 0;
                         let y:boolean = true;
                         allV.forEach((verb) =>{
-                            if((realWords[0]==="help"||realWords[0]==="hint") && verb.name===realWords[1] && realWords.length===2){
-                                this.state.allText.push(verb.help);
-                                this.addAndSetState();
-                                y=false;
+                            if(realWords[0]===verb.name){
+                                if (realWords.length===1){
+                                    this.state.allText.push(`You couldn't possibly ${realWords[0]} without a something, or somewhere, 
+                                    so please complete the action with an object`);
+                                    y=false;
+                                }else{
+                                    this.state.allText.push(`The verb exists`); 
+                                    this.addAndSetState();
+                                    y=false;
+                                }
                             }
                             x++;
-                            if(x===allV.length && y){
+                            if(x>=allV.length && y){
                                 this.state.allText.push(`Thinking on what you just said... 
                                 you've got no idea what that means and decide to ignore your strange train of thought`); 
                                 this.addAndSetState();
@@ -202,11 +239,7 @@ interface IGameState{
     allText: string[];
     user: IUser;
     room: IRoom;
-}
-interface IVerbs{
-    name: string;
-    help: string;
-    associateVerb: string;
+    interactables: string[];
 }
 interface IUser{
     _id: string;
@@ -229,4 +262,9 @@ interface IRoom{
     roomEnemy: string;
     roomEnemyHealth: number;
     roomEnemyAlive: boolean;
+}
+interface IVerbs{
+    name: string;
+    objectHelp: string;
+    associateVerb: string;
 }
