@@ -129,8 +129,6 @@ export default class Game extends Component<IAuth, IGameState>{
                 objectTextUpC = realWords[1].charAt(0).toUpperCase()+realWords[1].slice(1); 
             }
 
-            let verbText:string = "object"+realWords[0].charAt(0).toUpperCase()+realWords[0].slice(1);//the property in each object that will be searched
-
             if((realWords[0]==="help" || realWords[0]==="hint") && realWords.length===1){
                 this.state.allText.push(`Help is on its way. You have variouus ways of interacting with the world around you.
                 Just as you just used the verb "help", you can use other verbs to make this world change.
@@ -151,13 +149,13 @@ export default class Game extends Component<IAuth, IGameState>{
                 .then(
                     ({data})=>{
                         let allV:IVerbs[] = data;
-                        console.log(allV);
                         let x:number = 0;//to check if it has reached the end of the foreach
                         let y:boolean = true;//to see if the first item is a verb or not
                         let oneInv:boolean = true;//to see if there was already an inventory item interacted when there are more than 1 in the same room
                         let exists:boolean = false;//to see if the second is a valid object/verb or not
                         allV.forEach((verb) =>{//cycle through each verb to see if the first word is a valid verb
                             if(realWords[0]===verb.name){
+                                let verbText:string = "object"+verb.associateVerb.charAt(0).toUpperCase()+verb.associateVerb.slice(1);//the property in each object that will be searched
                                 allV.forEach((v) =>{//cycle through each verb to see if the second word is a valid verb
                                     if(objectText===v.name && verb.associateVerb==="help"){
                                         this.state.allText.push(v.objectHelp);
@@ -167,23 +165,21 @@ export default class Game extends Component<IAuth, IGameState>{
                                 });
                                 this.state.room.roomObjectsEnv.forEach((env)=>{//cycle to see if the second is an env object in the room
                                     let low:string = env.toLowerCase();
-                                    let envExists:boolean = false;
-                                    console.log(low);
                                     if(low===objectText){
                                         saxios.get(`api/user/allObjectsEnv/${objectTextUpC}`)
                                         .then(
                                             ({data})=>{
-                                                //console.log(Object.entries(data));
                                                 for(let x:number = 0;x<Object.entries(data).length;x++){
                                                     if(Object.entries(data)[x][0]===verbText){
                                                         this.state.allText.push(`${Object.entries(data)[x][1]}`);
-                                                        this.addAndSetState();    
+                                                        this.addAndSetState();
                                                         break;
                                                     }
                                                     if(x===(Object.entries(data).length-1)){
                                                         this.state.allText.push(`The action doesn't exist`);
                                                         this.addAndSetState(); 
-                                                    }    
+                                                        break;
+                                                    }        
                                                 }
                                             }
                                         )
@@ -196,12 +192,35 @@ export default class Game extends Component<IAuth, IGameState>{
                                     }
                                 });
                                 this.state.room.roomObjectsInv.forEach((inv)=>{//cycle to see if the second is an inv object in the room
-                                    let low = inv.toLowerCase();
-                                    console.log(low);
-                                    if(low===objectText && oneInv){
-                                        this.state.allText.push('Its a verb inv!');
-                                        this.addAndSetState();
-                                        oneInv=false;
+                                    let low:string = inv.toLowerCase();
+                                    if(low===objectText){
+                                        saxios.get(`api/user/allObjectsInv/${objectTextUpC}`)
+                                        .then(
+                                            ({data})=>{
+                                                for(let x:number = 0;x<Object.entries(data).length;x++){
+                                                    if(oneInv){
+                                                        if(Object.entries(data)[x][0]===verbText){
+                                                            this.state.allText.push(`${Object.entries(data)[x][1]}`);
+                                                            this.addAndSetState();  
+                                                            oneInv=false;  
+                                                            break;
+                                                        }
+                                                        if(x===(Object.entries(data).length-1)){
+                                                            this.state.allText.push(`The action doesn't exist`);
+                                                            this.addAndSetState();
+                                                            oneInv=false; 
+                                                            break;
+                                                        }    
+     
+                                                    }
+                                                }
+                                            }
+                                        )
+                                        .catch(
+                                            (err)=>{
+                                                console.log(err);
+                                            }
+                                        )
                                         exists=true;
                                     }
                                 });
