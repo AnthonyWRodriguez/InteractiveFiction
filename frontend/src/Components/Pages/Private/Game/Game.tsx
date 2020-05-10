@@ -166,15 +166,25 @@ export default class Game extends Component<IAuth, IGameState>{
                                     }
                                 });
                                 this.state.room.roomObjectsEnv.forEach((env)=>{//cycle to see if the second is an env object in the room
-                                    let low = env.toLowerCase();
+                                    let low:string = env.toLowerCase();
+                                    let envExists:boolean = false;
                                     console.log(low);
                                     if(low===objectText){
                                         saxios.get(`api/user/allObjectsEnv/${objectTextUpC}`)
                                         .then(
                                             ({data})=>{
-                                                console.log(data);
-                                                this.state.allText.push('Its a verb env!');
-                                                this.addAndSetState();
+                                                //console.log(Object.entries(data));
+                                                for(let x:number = 0;x<Object.entries(data).length;x++){
+                                                    if(Object.entries(data)[x][0]===verbText){
+                                                        this.state.allText.push(`${Object.entries(data)[x][1]}`);
+                                                        this.addAndSetState();    
+                                                        break;
+                                                    }
+                                                    if(x===(Object.entries(data).length-1)){
+                                                        this.state.allText.push(`The action doesn't exist`);
+                                                        this.addAndSetState(); 
+                                                    }    
+                                                }
                                             }
                                         )
                                         .catch(
