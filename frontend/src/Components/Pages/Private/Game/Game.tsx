@@ -6,8 +6,6 @@ import { getLocalStorage, saxios } from '../../../Utilities/Utilities';
 import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
 import { ObjectID } from 'mongodb';
-import { throws } from 'assert';
-
 
 export default class Game extends Component<IAuth, IGameState>{
     constructor(props: IAuth){
@@ -67,19 +65,7 @@ export default class Game extends Component<IAuth, IGameState>{
                             aside.scrollTop = aside.scrollHeight;
                             this.setState({
                                 room: data
-                            },()=>{
-                                saxios.get(`api/user/allVerbs`)
-                                .then(
-                                    ({data})=>{
-
-                                    }
-                                )
-                                .catch(
-                                    (err)=>{
-                                        console.log(err);   
-                                    }
-                                )
-                            })
+                            });
                         }
                     )
                     .catch(
@@ -139,8 +125,7 @@ export default class Game extends Component<IAuth, IGameState>{
                 objectText = realWords[1];
             }
 
-            let verbText:string = "object"+realWords[0].charAt(0).toUpperCase()+realWords[0].slice(1);
-            console.log(verbText);
+            let verbText:string = "object"+realWords[0].charAt(0).toUpperCase()+realWords[0].slice(1);//the property in each object that will be searched
 
             if((realWords[0]==="help" || realWords[0]==="hint") && realWords.length===1){
                 this.state.allText.push(`Help is on its way. You have variouus ways of interacting with the world around you.
@@ -152,6 +137,7 @@ export default class Game extends Component<IAuth, IGameState>{
                 this.state.allText.push(`Your progress is automatically saved every command you make.
                 If you want to exit, just press Logout or Adventure at the top of your screen`);
             }
+            //still missing status, inventory...
             else if(realWords.length===1){
                 this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
                 so please, after every verb, please choose an object to interact with`);
@@ -162,19 +148,44 @@ export default class Game extends Component<IAuth, IGameState>{
                     ({data})=>{
                         let allV:IVerbs[] = data;
                         console.log(allV);
-                        let x:number = 0;
-                        let y:boolean = true;
-                        allV.forEach((verb) =>{
+                        let x:number = 0;//to check if it has reached the end of the foreach
+                        let y:boolean = true;//to see if the first item is a verb or not
+                        let oneInv:boolean = true;//to see if there was already an inventory item interacted when there are more than 1 in the same room
+                        let exists:boolean = false;//to see if the second is a valid object/verb or not
+                        allV.forEach((verb) =>{//cycle through each verb to see if the first word is a valid verb
                             if(realWords[0]===verb.name){
-                                if (realWords.length===1){
-                                    this.state.allText.push(`You couldn't possibly ${realWords[0]} without a something, or somewhere, 
-                                    so please complete the action with an object`);
-                                    y=false;
-                                }else{
-                                    this.state.allText.push(`The verb exists`); 
+                                allV.forEach((v) =>{//cycle through each verb to see if the second word is a valid verb
+                                    if(objectText===v.name && verb.associateVerb==="help"){
+                                        this.state.allText.push(v.objectHelp);
+                                        this.addAndSetState();
+                                        exists=true;
+                                    }
+                                });
+                                this.state.room.roomObjectsEnv.forEach((env)=>{//cycle to see if the second is an env object in the room
+                                    let low = env.toLowerCase();
+                                    console.log(low);
+                                    if(low===objectText){
+                                        this.state.allText.push('Its a verb env!');
+                                        this.addAndSetState();
+                                        exists=true;
+                                    }
+                                });
+                                this.state.room.roomObjectsInv.forEach((inv)=>{//cycle to see if the second is an inv object in the room
+                                    let low = inv.toLowerCase();
+                                    console.log(low);
+                                    if(low===objectText && oneInv){
+                                        this.state.allText.push('Its a verb inv!');
+                                        this.addAndSetState();
+                                        oneInv=false;
+                                        exists=true;
+                                    }
+                                });
+                                if(!exists){
+                                    this.state.allText.push(`You can't possibly try and "${realWords[0]}" ${objectText}, please select a valid object to do so`); 
                                     this.addAndSetState();
-                                    y=false;
                                 }
+
+                                y=false;
                             }
                             x++;
                             if(x>=allV.length && y){
