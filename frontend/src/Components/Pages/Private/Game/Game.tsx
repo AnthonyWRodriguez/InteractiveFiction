@@ -176,7 +176,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         break;
                                                     }
                                                     if(x===(Object.entries(data).length-1)){
-                                                        this.state.allText.push(`The action doesn't exist`);
+                                                        this.state.allText.push(`You can't possibly "${verbText}" the ${objectTextUpC}`);
                                                         this.addAndSetState(); 
                                                         break;
                                                     }        
@@ -206,7 +206,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             break;
                                                         }
                                                         if(x===(Object.entries(data).length-1)){
-                                                            this.state.allText.push(`The action doesn't exist`);
+                                                            this.state.allText.push(`You can't possibly "${verbText}" the ${objectTextUpC}`);
                                                             this.addAndSetState();
                                                             oneInv=false; 
                                                             break;
