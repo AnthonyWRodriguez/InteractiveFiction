@@ -118,11 +118,15 @@ export default class Game extends Component<IAuth, IGameState>{
                 }
             });
 
-            let objectText:string = "";
+            let objectText:string = "";//for comparing with lower case
+            let objectTextUpC:string = "";//for comparing with first letter upper case
+
             if(realWords[2]!==undefined){
-                objectText = realWords[1]+" "+realWords[2]
+                objectText = realWords[1]+" "+realWords[2];
+                objectTextUpC = realWords[1].charAt(0).toUpperCase()+realWords[1].slice(1)+" "+realWords[2].charAt(0).toUpperCase()+realWords[2].slice(1);
             }else{
                 objectText = realWords[1];
+                objectTextUpC = realWords[1].charAt(0).toUpperCase()+realWords[1].slice(1); 
             }
 
             let verbText:string = "object"+realWords[0].charAt(0).toUpperCase()+realWords[0].slice(1);//the property in each object that will be searched
@@ -165,8 +169,19 @@ export default class Game extends Component<IAuth, IGameState>{
                                     let low = env.toLowerCase();
                                     console.log(low);
                                     if(low===objectText){
-                                        this.state.allText.push('Its a verb env!');
-                                        this.addAndSetState();
+                                        saxios.get(`api/user/allObjectsEnv/${objectTextUpC}`)
+                                        .then(
+                                            ({data})=>{
+                                                console.log(data);
+                                                this.state.allText.push('Its a verb env!');
+                                                this.addAndSetState();
+                                            }
+                                        )
+                                        .catch(
+                                            (err)=>{
+                                                console.log(err);
+                                            }
+                                        )
                                         exists=true;
                                     }
                                 });
