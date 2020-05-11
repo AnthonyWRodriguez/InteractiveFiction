@@ -121,12 +121,14 @@ export default class Game extends Component<IAuth, IGameState>{
             let objectText:string = "";//for comparing with lower case
             let objectTextUpC:string = "";//for comparing with first letter upper case
 
-            if(realWords[2]!==undefined){
-                objectText = realWords[1]+" "+realWords[2];
-                objectTextUpC = realWords[1].charAt(0).toUpperCase()+realWords[1].slice(1)+" "+realWords[2].charAt(0).toUpperCase()+realWords[2].slice(1);
-            }else{
-                objectText = realWords[1];
-                objectTextUpC = realWords[1].charAt(0).toUpperCase()+realWords[1].slice(1); 
+            if(realWords.length!==1){
+                if(realWords[2]!==undefined){
+                    objectText = realWords[1]+" "+realWords[2];
+                    objectTextUpC = realWords[1].charAt(0).toUpperCase()+realWords[1].slice(1)+" "+realWords[2].charAt(0).toUpperCase()+realWords[2].slice(1);
+                }else{
+                    objectText = realWords[1];
+                    objectTextUpC = realWords[1].charAt(0).toUpperCase()+realWords[1].slice(1); 
+                }        
             }
 
             if((realWords[0]==="help" || realWords[0]==="hint") && realWords.length===1){
@@ -139,7 +141,6 @@ export default class Game extends Component<IAuth, IGameState>{
                 this.state.allText.push(`Your progress is automatically saved every command you make.
                 If you want to exit, just press Logout or Adventure at the top of your screen`);
             }
-            //still missing status, inventory...
             else if(realWords.length===1){
                 this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
                 so please, after every verb, please choose an object to interact with`);
@@ -147,6 +148,7 @@ export default class Game extends Component<IAuth, IGameState>{
             else if(realWords[0]==="move" && realWords.length>2){
                 this.state.allText.push(`If you want to move an object, please use pull or push, its more specific`);
             }
+            //still missing status, inventory...
             else{
                 saxios.get(`api/user/allVerbs`)
                 .then(
