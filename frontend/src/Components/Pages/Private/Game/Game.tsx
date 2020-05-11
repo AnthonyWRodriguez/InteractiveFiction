@@ -144,6 +144,9 @@ export default class Game extends Component<IAuth, IGameState>{
                 this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
                 so please, after every verb, please choose an object to interact with`);
             }
+            else if(realWords[0]==="move" && realWords.length>2){
+                this.state.allText.push(`If you want to move an object, please use pull or push, its more specific`);
+            }
             else{
                 saxios.get(`api/user/allVerbs`)
                 .then(
@@ -211,7 +214,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             oneInv=false; 
                                                             break;
                                                         }    
-     
                                                     }
                                                 }
                                             }
