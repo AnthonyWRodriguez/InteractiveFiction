@@ -30,8 +30,12 @@ export default class Game extends Component<IAuth, IGameState>{
                 roomRight: "",
                 roomForward: "",
                 roomBackward: "",
-                roomObjectsInv: [],
-                roomObjectsEnv: [],
+                roomObjectsInv: [
+
+                ],
+                roomObjectsEnv: [
+
+                ],
                 roomEnemy: "",
                 roomEnemyHealth: 1,
                 roomEnemyAlive: false
@@ -168,78 +172,12 @@ export default class Game extends Component<IAuth, IGameState>{
                                         exists=true;
                                     }
                                 });
-                                this.state.room.roomObjectsEnv.forEach((env)=>{//cycle to see if the second is an env object in the room
-                                    let low:string = env.toLowerCase();
-                                    if(low===objectText){
-                                        saxios.get(`api/user/allObjectsEnv/${objectTextUpC}`)
-                                        .then(
-                                            ({data})=>{
-                                                for(let x:number = 0;x<Object.entries(data).length;x++){
-                                                    if(Object.entries(data)[x][0]===verbText){
-                                                        this.state.allText.push(`${Object.entries(data)[x][1]}`);
-                                                        this.addAndSetState();
-                                                        break;
-                                                    }
-                                                    if(x===(Object.entries(data).length-1)){
-                                                        this.state.allText.push(`You can't possibly "${verbText}" the ${objectTextUpC}`);
-                                                        this.addAndSetState(); 
-                                                        break;
-                                                    }        
-                                                }
-                                            }
-                                        )
-                                        .catch(
-                                            (err)=>{
-                                                console.log(err);
-                                            }
-                                        )
-                                        exists=true;
+                                for(let a:number = 0;a<this.state.room.roomObjectsEnv.length;a++){
+                                    if(this.state.room.roomObjectsEnv[a].objectName===objectTextUpC){
+                                        console.log("The object exists");
                                     }
-                                });
-                                this.state.room.roomObjectsInv.forEach((inv)=>{//cycle to see if the second is an inv object in the room
-                                    let low:string = inv.toLowerCase();
-                                    if(low===objectText){
-                                        saxios.get(`api/user/allObjectsInv/${objectTextUpC}`)
-                                        .then(
-                                            ({data})=>{
-                                                for(let x:number = 0;x<Object.entries(data).length;x++){
-                                                    if(oneInv){
-                                                        if(Object.entries(data)[x][0]===verbText){
-                                                            this.state.allText.push(`${Object.entries(data)[x][1]}`);
-                                                            this.addAndSetState();  
-                                                            oneInv=false;  
-                                                            break;
-                                                        }
-                                                        if(x===(Object.entries(data).length-1)){
-                                                            this.state.allText.push(`You can't possibly "${verbText}" the ${objectTextUpC}`);
-                                                            this.addAndSetState();
-                                                            oneInv=false; 
-                                                            break;
-                                                        }    
-                                                    }
-                                                }
-                                            }
-                                        )
-                                        .catch(
-                                            (err)=>{
-                                                console.log(err);
-                                            }
-                                        )
-                                        exists=true;
-                                    }
-                                });
-                                if(!exists){
-                                    this.state.allText.push(`You can't possibly try and "${realWords[0]}" ${objectText}, please select a valid object to do so`); 
-                                    this.addAndSetState();
                                 }
-
-                                y=false;
-                            }
-                            x++;
-                            if(x>=allV.length && y){
-                                this.state.allText.push(`Thinking on what you just said... 
-                                you've got no idea what that means and decide to ignore your strange train of thought`); 
-                                this.addAndSetState();
+                                console.log(this.state.room.roomObjectsInv);
                             }
                         });
                     }
@@ -316,8 +254,8 @@ interface IRoom{
     roomRight: ObjectID|string;
     roomForward: ObjectID|string;
     roomBackward: ObjectID|string;
-    roomObjectsInv: string[];
-    roomObjectsEnv: string[];
+    roomObjectsInv: IInvObject[]
+    roomObjectsEnv: IEnvObject[]
     roomEnemy: string;
     roomEnemyHealth: number;
     roomEnemyAlive: boolean;
@@ -326,4 +264,32 @@ interface IVerbs{
     name: string;
     objectHelp: string;
     associateVerb: string;
+}
+interface IInvObject{
+    objectName:string;
+    objectDesc:string;
+    objectType:string;
+    objectValue:number;
+    objectWeight:number;
+    objectUse:string;
+    objectEquip:string;
+    objectUnequip:string;
+    objectDrop:string;
+    objectGrab:string;
+    objectHelp:string;
+}
+interface IEnvObject{
+    objectName: string;
+    objectDesc: string;
+    objectPush: string;
+    objectPull: string;
+    objectRead: string;
+    objectOpen: string;
+    objectClose: string;
+    objectClimb: string;
+    objectBurn: string;
+    objectShoot: string;
+    objectShatter: string;
+    objectInteracted: boolean;
+    objectHelp: string;
 }
