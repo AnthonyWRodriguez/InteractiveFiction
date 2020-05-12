@@ -30,12 +30,8 @@ export default class Game extends Component<IAuth, IGameState>{
                 roomRight: "",
                 roomForward: "",
                 roomBackward: "",
-                roomObjectsInv: [
-
-                ],
-                roomObjectsEnv: [
-
-                ],
+                roomObjectsInv: [],
+                roomObjectsEnv: [],
                 roomEnemy: "",
                 roomEnemyHealth: 1,
                 roomEnemyAlive: false
@@ -173,8 +169,12 @@ export default class Game extends Component<IAuth, IGameState>{
                                     }
                                 });
                                 for(let a:number = 0;a<this.state.room.roomObjectsEnv.length;a++){
-                                    if(this.state.room.roomObjectsEnv[a].objectName===objectTextUpC){
-                                        console.log("The object exists");
+                                    for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsEnv[a])).length;b++){
+                                        if((Object.entries(this.state.room.roomObjectsEnv[a]))[b][0]===verbText){
+                                            this.state.allText.push((Object.entries(this.state.room.roomObjectsEnv[a]))[b][1] as string);
+                                            this.addAndSetState();
+                                            exists=true;
+                                        } 
                                     }
                                 }
                                 console.log(this.state.room.roomObjectsInv);
@@ -254,8 +254,8 @@ interface IRoom{
     roomRight: ObjectID|string;
     roomForward: ObjectID|string;
     roomBackward: ObjectID|string;
-    roomObjectsInv: IInvObject[]
-    roomObjectsEnv: IEnvObject[]
+    roomObjectsInv: []
+    roomObjectsEnv: []
     roomEnemy: string;
     roomEnemyHealth: number;
     roomEnemyAlive: boolean;
@@ -264,32 +264,4 @@ interface IVerbs{
     name: string;
     objectHelp: string;
     associateVerb: string;
-}
-interface IInvObject{
-    objectName:string;
-    objectDesc:string;
-    objectType:string;
-    objectValue:number;
-    objectWeight:number;
-    objectUse:string;
-    objectEquip:string;
-    objectUnequip:string;
-    objectDrop:string;
-    objectGrab:string;
-    objectHelp:string;
-}
-interface IEnvObject{
-    objectName: string;
-    objectDesc: string;
-    objectPush: string;
-    objectPull: string;
-    objectRead: string;
-    objectOpen: string;
-    objectClose: string;
-    objectClimb: string;
-    objectBurn: string;
-    objectShoot: string;
-    objectShatter: string;
-    objectInteracted: boolean;
-    objectHelp: string;
 }
