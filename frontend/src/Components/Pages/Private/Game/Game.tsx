@@ -141,6 +141,13 @@ export default class Game extends Component<IAuth, IGameState>{
                 this.state.allText.push(`Your progress is automatically saved every command you make.
                 If you want to exit, just press Logout or Adventure at the top of your screen`);
             }
+            else if(realWords[0]==="inventory"){
+                let uInv:string[] = [];
+                for(let a=0;a<this.state.user.userInventory.length;a++){
+                    uInv.push(this.state.user.userInventory[a].objectName);
+                }
+                this.state.allText.push(`Your current inventory is: ${uInv}`);
+            }
             else if(realWords.length===1){
                 this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
                 so please, after every verb, please choose an object to interact with`);
@@ -203,8 +210,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         )
                                                         .then(
                                                             ({data})=>{
-                                                                console.log(data);
-                                                                console.log(this.state.user);
                                                                 this.componentDidMount();
                                                             }
                                                         )
@@ -245,8 +250,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         )
                                                         .then(
                                                             ({data})=>{
-                                                                console.log(data);
-                                                                console.log(this.state.user);
                                                                 this.componentDidMount();
                                                             }
                                                         )
