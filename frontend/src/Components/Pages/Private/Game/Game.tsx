@@ -154,32 +154,73 @@ export default class Game extends Component<IAuth, IGameState>{
                 .then(
                     ({data})=>{
                         let allV:IVerbs[] = data;
-                        let x:number = 0;//to check if it has reached the end of the foreach
-                        let y:boolean = true;//to see if the first item is a verb or not
                         let oneInv:boolean = true;//to see if there was already an inventory item interacted when there are more than 1 in the same room
-                        let exists:boolean = false;//to see if the second is a valid object/verb or not
-                        allV.forEach((verb) =>{//cycle through each verb to see if the first word is a valid verb
-                            if(realWords[0]===verb.name){
-                                let verbText:string = "object"+verb.associateVerb.charAt(0).toUpperCase()+verb.associateVerb.slice(1);//the property in each object that will be searched
+                        let printed:boolean = false;//to see if the second is a valid object/verb or not
+                        for (let c:number=0;c<allV.length;c++){//cycle through each verb to see if the first word is a valid verb
+                            if(realWords[0]===allV[c].name){
+                                let verbText:string = "object"+allV[c].associateVerb.charAt(0).toUpperCase()+allV[c].associateVerb.slice(1);//the property in each object that will be searched
                                 allV.forEach((v) =>{//cycle through each verb to see if the second word is a valid verb
-                                    if(objectText===v.name && verb.associateVerb==="help"){
+                                    if(objectText===v.name && allV[c].associateVerb==="help"){
                                         this.state.allText.push(v.objectHelp);
                                         this.addAndSetState();
-                                        exists=true;
+                                        printed=true;
                                     }
                                 });
                                 for(let a:number = 0;a<this.state.room.roomObjectsEnv.length;a++){
-                                    for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsEnv[a])).length;b++){
-                                        if((Object.entries(this.state.room.roomObjectsEnv[a]))[b][0]===verbText){
-                                            this.state.allText.push((Object.entries(this.state.room.roomObjectsEnv[a]))[b][1] as string);
-                                            this.addAndSetState();
-                                            exists=true;
-                                        } 
+                                    if(this.state.room.roomObjectsEnv[a].objectName === objectTextUpC){
+                                        for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsEnv[a])).length;b++){
+                                            if((Object.entries(this.state.room.roomObjectsEnv[a]))[b][0]===verbText){
+                                                this.state.allText.push((Object.entries(this.state.room.roomObjectsEnv[a]))[b][1] as string);
+                                                this.addAndSetState();
+                                                printed=true;
+                                                break;
+                                            }     
+                                        }
+                                        if(!printed){
+                                            break;
+                                        }
                                     }
                                 }
-                                console.log(this.state.room.roomObjectsInv);
+                                for(let a:number = 0;a<this.state.room.roomObjectsInv.length;a++){
+                                    if(this.state.room.roomObjectsInv[a].objectName === objectTextUpC){
+                                        for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsInv[a])).length;b++){
+                                            if((Object.entries(this.state.room.roomObjectsInv[a]))[b][0]===verbText){
+                                                if(oneInv){
+                                                    this.state.allText.push((Object.entries(this.state.room.roomObjectsInv[a]))[b][1] as string);
+                                                    this.addAndSetState();
+                                                    printed=true;
+                                                    break;    
+                                                }
+                                            }     
+                                        }
+                                        if(!printed){
+                                            break;
+                                        }
+                                    }
+                                }
+                                for(let a:number=0;a<this.state.user.userInventory.length;a++){
+                                    if(this.state.user.userInventory[a].objectName === objectTextUpC){
+                                        for(let b:number = 0;b<(Object.entries(this.state.user.userInventory[a])).length;b++){
+                                            if(Object.entries(this.state.user.userInventory[a])[b][0]===verbText){
+                                                if(oneInv){
+                                                    this.state.allText.push(Object.entries(this.state.user.userInventory[a])[b][1] as string);
+                                                    this.addAndSetState();
+                                                    printed=true;
+                                                    break;    
+                                                }
+                                            }
+                                        }
+                                        if(!printed){
+                                            break;
+                                        }
+                                    }
+                                }
                             }
-                        });
+                        };
+                        if(!printed){
+                            this.state.allText.push(`You can't possibly think to "${realWords[0]}" ${objectTextUpC}`);
+                            this.addAndSetState();
+                        }
                     }
                 )
                 .catch(
@@ -241,7 +282,7 @@ interface IGameState{
 interface IUser{
     _id: string;
     userCurrentRoom: string;
-    userInventory: string[];
+    userInventory: any[];
     userLeftEquip: string;
     userRightEquip: string;
 }
@@ -254,8 +295,8 @@ interface IRoom{
     roomRight: ObjectID|string;
     roomForward: ObjectID|string;
     roomBackward: ObjectID|string;
-    roomObjectsInv: []
-    roomObjectsEnv: []
+    roomObjectsInv: any[]
+    roomObjectsEnv: any[]
     roomEnemy: string;
     roomEnemyHealth: number;
     roomEnemyAlive: boolean;
