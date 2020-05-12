@@ -176,19 +176,24 @@ export default class Game extends Component<IAuth, IGameState>{
                                                 break;
                                             }     
                                         }
-                                        if(!printed){
+                                        if(printed){
                                             break;
                                         }
                                     }
                                 }
-                                for(let a:number = 0;a<this.state.room.roomObjectsInv.length;a++){
-                                    if(this.state.room.roomObjectsInv[a].objectName === objectTextUpC){
-                                        for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsInv[a])).length;b++){
-                                            if((Object.entries(this.state.room.roomObjectsInv[a]))[b][0]===verbText){
-                                                if(oneInv){
-                                                    if(verbText==="objectGrab"){
+                                if(verbText!=="objectDrop" && verbText!=="objectEquip" && verbText!=="objectUnequip"){
+                                    for(let a:number = 0;a<this.state.room.roomObjectsInv.length;a++){
+                                        if(this.state.room.roomObjectsInv[a].objectName === objectTextUpC){
+                                            for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsInv[a])).length;b++){
+                                                if((Object.entries(this.state.room.roomObjectsInv[a]))[b][0]===verbText){
+                                                    if(oneInv){
+                                                        oneInv=false;
+                                                        let uri = ``;
+                                                        if(verbText==="objectGrab"){
+                                                        uri = `/api/user/grab`;
+                                                        }
                                                         saxios.put(
-                                                            `/api/user/grab`,
+                                                            `${uri}`,
                                                             {
                                                                 object: this.state.room.roomObjectsInv[a],
                                                                 currentRName: this.state.room.roomName,
@@ -199,6 +204,8 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         .then(
                                                             ({data})=>{
                                                                 console.log(data);
+                                                                console.log(this.state.user);
+                                                                this.componentDidMount();
                                                             }
                                                         )
                                                         .catch(
@@ -211,11 +218,8 @@ export default class Game extends Component<IAuth, IGameState>{
                                                     this.addAndSetState();
                                                     printed=true;
                                                     break;    
-                                                }
-                                            }     
-                                        }
-                                        if(!printed){
-                                            break;
+                                                }     
+                                            }
                                         }
                                     }
                                 }
@@ -225,14 +229,40 @@ export default class Game extends Component<IAuth, IGameState>{
                                             for(let b:number = 0;b<(Object.entries(this.state.user.userInventory[a])).length;b++){
                                                 if(Object.entries(this.state.user.userInventory[a])[b][0]===verbText){
                                                     if(oneInv){
-                                                        this.state.allText.push(Object.entries(this.state.user.userInventory[a])[b][1] as string);
+                                                        oneInv=false;
+                                                        let uri = ``;
+                                                        if(verbText==="objectDrop"){
+                                                            uri = `/api/user/drop`;
+                                                        }
+                                                        saxios.put(
+                                                            `${uri}`,
+                                                            {
+                                                                object: this.state.user.userInventory[a],
+                                                                currentRName: this.state.room.roomName,
+                                                                uName: this.state.name,
+                                                                InvObjs: this.state.user.userInventory
+                                                            }
+                                                        )
+                                                        .then(
+                                                            ({data})=>{
+                                                                console.log(data);
+                                                                console.log(this.state.user);
+                                                                this.componentDidMount();
+                                                            }
+                                                        )
+                                                        .catch(
+                                                            (err)=>{
+                                                                console.log(err);
+                                                            }
+                                                        )
+                                                        this.state.allText.push((Object.entries(this.state.user.userInventory[a])[b][1] as string));
                                                         this.addAndSetState();
                                                         printed=true;
                                                         break;    
                                                     }
                                                 }
                                             }
-                                            if(!printed){
+                                            if(printed){
                                                 break;
                                             }
                                         }
