@@ -186,6 +186,27 @@ export default class Game extends Component<IAuth, IGameState>{
                                         for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsInv[a])).length;b++){
                                             if((Object.entries(this.state.room.roomObjectsInv[a]))[b][0]===verbText){
                                                 if(oneInv){
+                                                    if(verbText==="objectGrab"){
+                                                        saxios.put(
+                                                            `/api/user/grab`,
+                                                            {
+                                                                object: this.state.room.roomObjectsInv[a],
+                                                                currentRName: this.state.room.roomName,
+                                                                uName: this.state.name,
+                                                                InvObjs: this.state.room.roomObjectsInv
+                                                            }
+                                                        )
+                                                        .then(
+                                                            ({data})=>{
+                                                                console.log(data);
+                                                            }
+                                                        )
+                                                        .catch(
+                                                            (err)=>{
+                                                                console.log(err);
+                                                            }
+                                                        )
+                                                    }
                                                     this.state.allText.push((Object.entries(this.state.room.roomObjectsInv[a]))[b][1] as string);
                                                     this.addAndSetState();
                                                     printed=true;
@@ -198,22 +219,24 @@ export default class Game extends Component<IAuth, IGameState>{
                                         }
                                     }
                                 }
-                                for(let a:number=0;a<this.state.user.userInventory.length;a++){
-                                    if(this.state.user.userInventory[a].objectName === objectTextUpC){
-                                        for(let b:number = 0;b<(Object.entries(this.state.user.userInventory[a])).length;b++){
-                                            if(Object.entries(this.state.user.userInventory[a])[b][0]===verbText){
-                                                if(oneInv){
-                                                    this.state.allText.push(Object.entries(this.state.user.userInventory[a])[b][1] as string);
-                                                    this.addAndSetState();
-                                                    printed=true;
-                                                    break;    
+                                if(verbText!=="objectGrab"){
+                                    for(let a:number=0;a<this.state.user.userInventory.length;a++){
+                                        if(this.state.user.userInventory[a].objectName === objectTextUpC){
+                                            for(let b:number = 0;b<(Object.entries(this.state.user.userInventory[a])).length;b++){
+                                                if(Object.entries(this.state.user.userInventory[a])[b][0]===verbText){
+                                                    if(oneInv){
+                                                        this.state.allText.push(Object.entries(this.state.user.userInventory[a])[b][1] as string);
+                                                        this.addAndSetState();
+                                                        printed=true;
+                                                        break;    
+                                                    }
                                                 }
                                             }
+                                            if(!printed){
+                                                break;
+                                            }
                                         }
-                                        if(!printed){
-                                            break;
-                                        }
-                                    }
+                                    }    
                                 }
                             }
                         };
