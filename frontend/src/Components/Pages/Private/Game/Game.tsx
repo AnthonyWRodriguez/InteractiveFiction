@@ -155,17 +155,17 @@ export default class Game extends Component<IAuth, IGameState>{
                     ({data})=>{
                         let allV:IVerbs[] = data;
                         let oneInv:boolean = true;//to see if there was already an inventory item interacted when there are more than 1 in the same room
-                        let printed:boolean = false;//to see if the second is a valid object/verb or not
+                        let printed:boolean = false;//to see if it has already printed something or not
                         for (let c:number=0;c<allV.length;c++){//cycle through each verb to see if the first word is a valid verb
                             if(realWords[0]===allV[c].name){
                                 let verbText:string = "object"+allV[c].associateVerb.charAt(0).toUpperCase()+allV[c].associateVerb.slice(1);//the property in each object that will be searched
-                                allV.forEach((v) =>{//cycle through each verb to see if the second word is a valid verb
-                                    if(objectText===v.name && allV[c].associateVerb==="help"){
-                                        this.state.allText.push(v.objectHelp);
+                                for (let d:number=0;d<allV.length;d++){//cycle through each verb to see if the second word is a valid verb
+                                    if(objectText===allV[d].name && allV[c].associateVerb==="help"){
+                                        this.state.allText.push(allV[d].objectHelp);
                                         this.addAndSetState();
                                         printed=true;
                                     }
-                                });
+                                }
                                 for(let a:number = 0;a<this.state.room.roomObjectsEnv.length;a++){
                                     if(this.state.room.roomObjectsEnv[a].objectName === objectTextUpC){
                                         for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsEnv[a])).length;b++){
