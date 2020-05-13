@@ -18,8 +18,18 @@ export default class Game extends Component<IAuth, IGameState>{
                 _id:"",
                 userCurrentRoom: "",
                 userInventory: [],
-                userLeftEquip: "",
-                userRightEquip: "",
+                userLeftEquip: {
+                    objectName: "",
+                    objectType: "",
+                    objectValue: 0,
+                    objectWeight: 0
+                },
+                userRightEquip: {
+                    objectName: "",
+                    objectType: "",
+                    objectValue: 0,
+                    objectWeight: 0
+                },
                 userBaseHealth:0,
                 userRealHealth:0,
                 userAtk:0
@@ -222,27 +232,27 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         oneInv=false;
                                                         let uri = ``;
                                                         if(verbText==="objectGrab"){
-                                                        uri = `/api/user/grab`;
+                                                            uri = `/api/user/grab`;
+                                                            saxios.put(
+                                                                `${uri}`,
+                                                                {
+                                                                    object: this.state.room.roomObjectsInv[a],
+                                                                    currentRName: this.state.room.roomName,
+                                                                    uName: this.state.name,
+                                                                    InvObjs: this.state.room.roomObjectsInv
+                                                                }
+                                                            )
+                                                            .then(
+                                                                ({data})=>{
+                                                                    this.componentDidMount();
+                                                                }
+                                                            )
+                                                            .catch(
+                                                                (err)=>{
+                                                                    console.log(err);
+                                                                }
+                                                            )
                                                         }
-                                                        saxios.put(
-                                                            `${uri}`,
-                                                            {
-                                                                object: this.state.room.roomObjectsInv[a],
-                                                                currentRName: this.state.room.roomName,
-                                                                uName: this.state.name,
-                                                                InvObjs: this.state.room.roomObjectsInv
-                                                            }
-                                                        )
-                                                        .then(
-                                                            ({data})=>{
-                                                                this.componentDidMount();
-                                                            }
-                                                        )
-                                                        .catch(
-                                                            (err)=>{
-                                                                console.log(err);
-                                                            }
-                                                        )
                                                     }
                                                     this.state.allText.push((Object.entries(this.state.room.roomObjectsInv[a]))[b][1] as string);
                                                     this.addAndSetState();
@@ -269,29 +279,43 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         if(verbText==="objectDrop"){
                                                             uri = `/api/user/drop`;
                                                         }
-                                                        saxios.put(
-                                                            `${uri}`,
-                                                            {
-                                                                object: this.state.user.userInventory[a],
-                                                                currentRName: this.state.room.roomName,
-                                                                uName: this.state.name,
-                                                                InvObjs: this.state.user.userInventory
-                                                            }
-                                                        )
-                                                        .then(
-                                                            ({data})=>{
-                                                                this.componentDidMount();
-                                                            }
-                                                        )
-                                                        .catch(
-                                                            (err)=>{
-                                                                console.log(err);
-                                                            }
-                                                        )
-                                                        this.state.allText.push((Object.entries(this.state.user.userInventory[a])[b][1] as string));
-                                                        this.addAndSetState();
-                                                        printed=true;
-                                                        break;    
+                                                        if(verbText==="objectEquip"){
+                                                            uri=`/api/user/equip`
+                                                        }
+                                                        if(uri!==``){
+                                                            saxios.put(
+                                                                `${uri}`,
+                                                                {
+                                                                    object: this.state.user.userInventory[a],
+                                                                    currentRName: this.state.room.roomName,
+                                                                    uName: this.state.name,
+                                                                    InvObjs: this.state.user.userInventory,
+                                                                    leftE: this.state.user.userLeftEquip.objectName,
+                                                                    rightE: this.state.user.userRightEquip.objectName
+                                                                }
+                                                            )
+                                                            .then(
+                                                                ({data})=>{
+                                                                    if(data.msg){
+                                                                        this.state.allText.push(data.msg);
+                                                                        this.addAndSetState();
+                                                                        this.componentDidMount();   
+                                                                        printed=true; 
+                                                                    }
+                                                                }
+                                                            )
+                                                            .catch(
+                                                                (err)=>{
+                                                                    console.log(err);
+                                                                }
+                                                            )    
+                                                        }
+                                                        if(!printed){
+                                                            this.state.allText.push((Object.entries(this.state.user.userInventory[a])[b][1] as string));
+                                                            this.addAndSetState();
+                                                            printed=true;
+                                                            break;        
+                                                        }
                                                     }
                                                 }
                                             }
@@ -336,26 +360,26 @@ export default class Game extends Component<IAuth, IGameState>{
             uiItems = <p key="0">Empty</p>
         }
         return(
-                <Page auth={this.props.auth}>
-                    <div className="container d-flex flex-column align-items-center justify-content-center">
-                        <aside 
-                            className="bg-secondary"
-                            id="aside"
-                        >
-                            {uiItems}
-                        </aside>
-                        &nbsp;
-                        <Input
-                            type="text" 
-                            className="form-control bg-transparent text-white" 
-                            placeholder="Enter your command"
-                            name="command"
-                            value={this.state.command}
-                            onChange={this.onChangeText}
-                            keyDown={this.onKeyPress}
-                        ></Input>
-                    </div>
-                </Page>
+            <Page auth={this.props.auth}>
+                <div className="container d-flex flex-column align-items-center justify-content-center">
+                    <aside 
+                        className="bg-secondary"
+                        id="aside"
+                    >
+                        {uiItems}
+                    </aside>
+                    &nbsp;
+                    <Input
+                        type="text" 
+                        className="form-control bg-transparent text-white" 
+                        placeholder="Enter your command"
+                        name="command"
+                        value={this.state.command}
+                        onChange={this.onChangeText}
+                        keyDown={this.onKeyPress}
+                    ></Input>
+                </div>
+            </Page>
         )
     }
 }
@@ -371,8 +395,8 @@ interface IUser{
     _id: string;
     userCurrentRoom: string;
     userInventory: any[];
-    userLeftEquip: string;
-    userRightEquip: string;
+    userLeftEquip: IEquip;
+    userRightEquip: IEquip;
     userBaseHealth: number;
     userRealHealth: number;
     userAtk: number;
@@ -396,4 +420,10 @@ interface IVerbs{
     name: string;
     objectHelp: string;
     associateVerb: string;
+}
+interface IEquip{
+    objectName: string;
+    objectType: string;
+    objectValue: number;
+    objectWeight: number;
 }
