@@ -19,7 +19,10 @@ export default class Game extends Component<IAuth, IGameState>{
                 userCurrentRoom: "",
                 userInventory: [],
                 userLeftEquip: "",
-                userRightEquip: ""
+                userRightEquip: "",
+                userBaseHealth:0,
+                userRealHealth:0,
+                userAtk:0
             },
             room: {
                 roomName: "",
@@ -58,22 +61,41 @@ export default class Game extends Component<IAuth, IGameState>{
                     user: data,
                     allText: data.userCommands
                 },()=>{
-                    saxios.get(`/api/user/currentRoom/${this.state.user._id}/${this.state.user.userCurrentRoom}`)
-                    .then(
-                        ({data})=>{
-                            let aside = document.getElementById("aside") as HTMLElement;
-                            aside.scrollTop = aside.scrollHeight;
-                            this.setState({
-                                room: data
-                            });
-                        }
-                    )
-                    .catch(
-                        (err)=>{
-                            console.log(err);  
-                        }
-                    )
-
+                    if(this.state.user.userRealHealth===0){
+                        alert("You died. Restarting from the beginning...");
+                        saxios.put(
+                            `/api/user/death`,
+                            {
+                                name: this.state.name
+                            }
+                        )
+                        .then(
+                            ({data})=>{
+                                console.log(data);
+                            }
+                        )
+                        .catch(
+                            (err)=>{
+                                console.log(err);
+                            }
+                        )
+                    }else{
+                        saxios.get(`/api/user/currentRoom/${this.state.user._id}/${this.state.user.userCurrentRoom}`)
+                        .then(
+                            ({data})=>{
+                                let aside = document.getElementById("aside") as HTMLElement;
+                                aside.scrollTop = aside.scrollHeight;
+                                this.setState({
+                                    room: data
+                                });
+                            }
+                        )
+                        .catch(
+                            (err)=>{
+                                console.log(err);  
+                            }
+                        )    
+                    }
                 })
             }
         )
@@ -147,6 +169,9 @@ export default class Game extends Component<IAuth, IGameState>{
                     uInv.push(this.state.user.userInventory[a].objectName);
                 }
                 this.state.allText.push(`Your current inventory is: ${uInv}`);
+            }
+            else if(realWords[0]==="status"){
+
             }
             else if(realWords.length===1){
                 this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
@@ -225,6 +250,11 @@ export default class Game extends Component<IAuth, IGameState>{
                                                     break;    
                                                 }     
                                             }
+                                            if(!printed){
+                                                this.state.allText.push(`There is no ${objectTextUpC} in this room`);
+                                                this.addAndSetState();
+                                                printed=true;
+                                            }
                                         }
                                     }
                                 }
@@ -265,11 +295,13 @@ export default class Game extends Component<IAuth, IGameState>{
                                                     }
                                                 }
                                             }
-                                            if(printed){
-                                                break;
-                                            }
                                         }
-                                    }    
+                                    }
+                                    if(!printed){
+                                        this.state.allText.push(`You have no ${objectTextUpC} in your inventory`);
+                                        this.addAndSetState();
+                                        printed=true;
+                                    }
                                 }
                             }
                         };
@@ -341,6 +373,9 @@ interface IUser{
     userInventory: any[];
     userLeftEquip: string;
     userRightEquip: string;
+    userBaseHealth: number;
+    userRealHealth: number;
+    userAtk: number;
 }
 interface IRoom{
     roomName: string;
