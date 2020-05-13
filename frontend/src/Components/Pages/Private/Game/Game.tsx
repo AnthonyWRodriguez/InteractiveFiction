@@ -381,27 +381,24 @@ export default class Game extends Component<IAuth, IGameState>{
                                                     if(Object.entries(this.state.user.userInventory[a])[b][0]===verbText){
                                                         if(oneInv){
                                                             oneInv=false;
+                                                            let obj=this.state.user.userInventory[a]
                                                             let uri = ``;
                                                             if(verbText==="objectDrop"){
                                                                 uri = `/api/user/drop`;
                                                             }
                                                             if(verbText==="objectEquip"){
                                                                 uri=`/api/user/equip`
-    
+                                                            }
+                                                            if(verbText==="objectUnequip"){
+                                                                uri=`/api/user/unequip`;
+                                                                obj=objectTextUpC;
                                                             }
                                                             if(uri!==``){
-                                                                console.log(this.state.user.userInventory[a]);
-                                                                console.log(this.state.room.roomName);
-                                                                console.log(this.state.name);
-                                                                console.log(this.state.user.userInventory);
-                                                                console.log(this.state.user.userLeftEquip.objectName);
-                                                                console.log(this.state.user.userRightEquip.objectName);
-                                                                console.log(direction);
-
+                                                                console.log(obj);
                                                                 saxios.put(
                                                                     `${uri}`,
                                                                     {
-                                                                        object: this.state.user.userInventory[a],
+                                                                        object: obj,
                                                                         currentRName: this.state.room.roomName,
                                                                         uName: this.state.name,
                                                                         InvObjs: this.state.user.userInventory,
