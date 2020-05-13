@@ -366,12 +366,12 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         break;    
                                                     }     
                                                 }
-                                                if(!printed){
-                                                    this.state.allText.push(`There is no ${objectTextUpC} in this room`);
-                                                    this.addAndSetState();
-                                                    printed=true;
-                                                }
                                             }
+                                        }
+                                        if(!printed){
+                                            this.state.allText.push(`There is no ${objectTextUpC} in this room`);
+                                            this.addAndSetState();
+                                            printed=true;
                                         }
                                     }
                                     if(verbText!=="objectGrab"){
