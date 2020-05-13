@@ -71,7 +71,7 @@ export default class Game extends Component<IAuth, IGameState>{
                         )
                         .then(
                             ({data})=>{
-                                console.log(data);
+                                alert(data.msg);
                             }
                         )
                         .catch(
