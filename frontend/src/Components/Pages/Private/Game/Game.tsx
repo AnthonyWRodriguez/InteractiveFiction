@@ -160,7 +160,6 @@ export default class Game extends Component<IAuth, IGameState>{
         });
     }
     mainGameCode = ()=>{
-        console.log(this.state);
         this.state.allText.push(this.state.command);
         let lower:string = this.state.command.toLowerCase();
         const words:string[] = lower.split(" ");
@@ -296,6 +295,7 @@ export default class Game extends Component<IAuth, IGameState>{
             Just as you just used the verb "help", you can use other verbs to make this world change.
             For instance, if you want to move, you type "move" and a direction. 
             If you want to grab something, type "grab" followed by the object you want to try and grab.
+            If you want to get more knowledge of other verbs, type "help" followed by the verb you want to know more about.
             In the spirit of encouraging exploration, try different verbs and see their effects!`);
         }else if(realWords[0]==="exit"){
             this.state.allText.push(`Your progress is automatically saved every command you make.
@@ -317,10 +317,18 @@ export default class Game extends Component<IAuth, IGameState>{
             for(let a=0;a<this.state.room.roomObjectsInv.length;a++){
                 uInv.push(this.state.room.roomObjectsInv[a].objectName);
             }
-            if(this.state.room.roomEnemyAlive){
-                this.state.allText.push(`${this.state.room.roomEnterEnemy}. In the room you can find: ${uInv}`);
+            if(uInv.length===0){
+                if(this.state.room.roomEnemyAlive){
+                    this.state.allText.push(`${this.state.room.roomEnterEnemy}`);
+                }else{
+                    this.state.allText.push(`${this.state.room.roomEnter}`);
+                }
             }else{
-                this.state.allText.push(`${this.state.room.roomEnter}. In the room you can find: ${uInv}`);
+                if(this.state.room.roomEnemyAlive){
+                    this.state.allText.push(`${this.state.room.roomEnterEnemy}. In the room you can find: ${uInv}`);
+                }else{
+                    this.state.allText.push(`${this.state.room.roomEnter}. In the room you can find: ${uInv}`);
+                }    
             }
         }
         else if(realWords.length===1){
@@ -339,14 +347,30 @@ export default class Game extends Component<IAuth, IGameState>{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
-                            this.state.user.userCurrentRoom = this.state.room.roomForward;
+                            saxios.put(
+                                `/api/user/changeRoom`,
+                                {
+                                    uName: this.state.name,
+                                    roomID: this.state.room.roomForward
+                                }
+                            )
+                            .then(
+                                ({data})=>{
+                                    console.log(data);
+                                    this.componentDidMount();
+                                }
+                            )
+                            .catch(
+                                (err)=>{
+                                    console.log(err);
+                                }
+                            )
                         }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
-            } 
-            if(realWords[1]==="backward" || realWords[1]==="behind" || realWords[1]==="south"){
+            }else if(realWords[1]==="backward" || realWords[1]==="behind" || realWords[1]==="south"){
                 if(this.state.room.roomBackward.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomBackward}`);
                 }else{
@@ -354,14 +378,30 @@ export default class Game extends Component<IAuth, IGameState>{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
-                            this.state.user.userCurrentRoom = this.state.room.roomBackward;
+                            saxios.put(
+                                `/api/user/changeRoom`,
+                                {
+                                    uName: this.state.name,
+                                    roomID: this.state.room.roomBackward
+                                }
+                            )
+                            .then(
+                                ({data})=>{
+                                    console.log(data);
+                                    this.componentDidMount();
+                                }
+                            )
+                            .catch(
+                                (err)=>{
+                                    console.log(err);
+                                }
+                            )
                         }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
-            } 
-            if(realWords[1]==="left" || realWords[1]==="west"){
+            }else if(realWords[1]==="left" || realWords[1]==="west"){
                 if(this.state.room.roomLeft.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomLeft}`);
                 }else{
@@ -369,15 +409,32 @@ export default class Game extends Component<IAuth, IGameState>{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
-                            console.log("Reached here");
-                            this.state.user.userCurrentRoom = this.state.room.roomLeft;
+                            console.log(this.state.name);
+                            console.log(this.state.room.roomLeft);
+                            saxios.put(
+                                `/api/user/changeRoom`,
+                                {
+                                    uName: this.state.name,
+                                    roomID: this.state.room.roomLeft
+                                }
+                            )
+                            .then(
+                                ({data})=>{
+                                    console.log(data);
+                                    this.componentDidMount();
+                                }
+                            )
+                            .catch(
+                                (err)=>{
+                                    console.log(err);
+                                }
+                            )
                         }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
-            }
-            if(realWords[1]==="east" || realWords[1]==="right" ){
+            }else if(realWords[1]==="east" || realWords[1]==="right" ){
                 if(this.state.room.roomRight.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomRight}`);
                 }else{
@@ -385,12 +442,31 @@ export default class Game extends Component<IAuth, IGameState>{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
-                            this.state.user.userCurrentRoom = this.state.room.roomRight;
+                            saxios.put(
+                                `/api/user/changeRoom`,
+                                {
+                                    uName: this.state.name,
+                                    roomID: this.state.room.roomForward
+                                }
+                            )
+                            .then(
+                                ({data})=>{
+                                    console.log(data);
+                                    this.componentDidMount();
+                                }
+                            )
+                            .catch(
+                                (err)=>{
+                                    console.log(err);
+                                }
+                            )
                         }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
+            }else{
+                this.state.allText.push(`That is not a valid way to move. Please type a valid "move" command`);
             }
         }
         else{
