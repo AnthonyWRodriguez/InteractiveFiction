@@ -293,6 +293,17 @@ export default class Game extends Component<IAuth, IGameState>{
             this.state.allText.push(`Your current health is: ${this.state.user.userRealHealth}/${this.state.user.userBaseHealth}.
             In your left hand a(an): ${this.state.user.userLeftEquip.objectName}. In your right hand you have a(an): ${this.state.user.userRightEquip.objectName}`);
         }
+        else if(realWords[0]==="look" || realWords[0]==="observe"){
+            let uInv:string[] = [];
+            for(let a=0;a<this.state.room.roomObjectsInv.length;a++){
+                uInv.push(this.state.room.roomObjectsInv[a].objectName);
+            }
+            if(this.state.room.roomEnemyAlive){
+                this.state.allText.push(`${this.state.room.roomEnterEnemy}. In the room you can find: ${uInv}`);
+            }else{
+                this.state.allText.push(`${this.state.room.roomEnter}. In the room you can find: ${uInv}`);
+            }
+        }
         else if(realWords.length===1){
             this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
             so please, after every verb, please choose an object to interact with`);
@@ -308,7 +319,7 @@ export default class Game extends Component<IAuth, IGameState>{
                     if(this.state.room.roomForwardBool){
                         this.state.allText.push("You will be moven there");
                     }else{
-                        this.state.allText.push("Your path is blocked. Find a way to solve the puzzle");
+                        this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
             } 
@@ -319,7 +330,7 @@ export default class Game extends Component<IAuth, IGameState>{
                     if(this.state.room.roomBackwardBool){
                         this.state.allText.push("You will be moven there");
                     }else{
-                        this.state.allText.push("Your path is blocked. Find a way to solve the puzzle");
+                        this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
             } 
@@ -330,7 +341,7 @@ export default class Game extends Component<IAuth, IGameState>{
                     if(this.state.room.roomLeftBool){
                         this.state.allText.push("You will be moven there");
                     }else{
-                        this.state.allText.push("Your path is blocked. Find a way to solve the puzzle");
+                        this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
             }
@@ -341,7 +352,7 @@ export default class Game extends Component<IAuth, IGameState>{
                     if(this.state.room.roomRightBool){
                         this.state.allText.push("You will be moven there");
                     }else{
-                        this.state.allText.push("Your path is blocked. Find a way to solve the puzzle");
+                        this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
             }
@@ -444,7 +455,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             obj=objectTextUpC;
                                                         }
                                                         if(uri!==``){
-                                                            console.log(obj);
                                                             saxios.put(
                                                                 `${uri}`,
                                                                 {
