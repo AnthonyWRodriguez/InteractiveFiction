@@ -7,7 +7,6 @@ import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
 import { ObjectID } from 'mongodb';
 import { IoIosReturnLeft } from 'react-icons/io';
-import { throws } from 'assert';
 
 export default class Game extends Component<IAuth, IGameState>{
     constructor(props: IAuth){
@@ -161,6 +160,7 @@ export default class Game extends Component<IAuth, IGameState>{
         });
     }
     mainGameCode = ()=>{
+        console.log(this.state);
         this.state.allText.push(this.state.command);
         let lower:string = this.state.command.toLowerCase();
         const words:string[] = lower.split(" ");
@@ -328,48 +328,65 @@ export default class Game extends Component<IAuth, IGameState>{
             so please, after every verb, please choose an object to interact with`);
         }
         else if(realWords[0]==="move" && realWords.length>2){
-            this.state.allText.push(`If you want to move an object, please use pull or push, its more specific`);
+            this.state.allText.push(`If you want to try and move an object, please use pull or push, its more specific`);
         }
         else if(realWords[0]==="move"){
             if(realWords[1]==="forward" ||  realWords[1]==="ahead" || realWords[1]==="north"){
-                if(this.state.room.roomForward.toString().length>24){
+                if(this.state.room.roomForward.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomForward}`);
                 }else{
                     if(this.state.room.roomForwardBool){
-                        this.state.allText.push("You will be moven there");
+                        if(this.state.room.roomEnemyAlive){
+                            this.state.allText.push("You can't run away from a battle");
+                        }else{
+                            this.state.user.userCurrentRoom = this.state.room.roomForward;
+                        }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
             } 
             if(realWords[1]==="backward" || realWords[1]==="behind" || realWords[1]==="south"){
-                if(this.state.room.roomBackward.toString().length>24){
+                if(this.state.room.roomBackward.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomBackward}`);
                 }else{
                     if(this.state.room.roomBackwardBool){
-                        this.state.allText.push("You will be moven there");
+                        if(this.state.room.roomEnemyAlive){
+                            this.state.allText.push("You can't run away from a battle");
+                        }else{
+                            this.state.user.userCurrentRoom = this.state.room.roomBackward;
+                        }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
             } 
             if(realWords[1]==="left" || realWords[1]==="west"){
-                if(this.state.room.roomLeft.toString().length>24){
+                if(this.state.room.roomLeft.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomLeft}`);
                 }else{
                     if(this.state.room.roomLeftBool){
-                        this.state.allText.push("You will be moven there");
+                        if(this.state.room.roomEnemyAlive){
+                            this.state.allText.push("You can't run away from a battle");
+                        }else{
+                            console.log("Reached here");
+                            this.state.user.userCurrentRoom = this.state.room.roomLeft;
+                        }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
             }
             if(realWords[1]==="east" || realWords[1]==="right" ){
-                if(this.state.room.roomRight.toString().length>24){
+                if(this.state.room.roomRight.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomRight}`);
                 }else{
                     if(this.state.room.roomRightBool){
-                        this.state.allText.push("You will be moven there");
+                        if(this.state.room.roomEnemyAlive){
+                            this.state.allText.push("You can't run away from a battle");
+                        }else{
+                            this.state.user.userCurrentRoom = this.state.room.roomRight;
+                        }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
@@ -586,7 +603,7 @@ interface IGameState{
 }
 interface IUser{
     _id: string;
-    userCurrentRoom: string;
+    userCurrentRoom: ObjectID|string;
     userInventory: any[];
     userLeftEquip: IEquip;
     userRightEquip: IEquip;
