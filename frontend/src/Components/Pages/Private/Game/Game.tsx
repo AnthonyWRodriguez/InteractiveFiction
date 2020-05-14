@@ -7,6 +7,7 @@ import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
 import { ObjectID } from 'mongodb';
 import { IoIosReturnLeft } from 'react-icons/io';
+import { throws } from 'assert';
 
 export default class Game extends Component<IAuth, IGameState>{
     constructor(props: IAuth){
@@ -54,7 +55,8 @@ export default class Game extends Component<IAuth, IGameState>{
                 roomForwardBool: false,
                 roomBackwardBool: false
             },
-            interactables:[]
+            allInventory: [],
+            msg: "",
         }
     }
     static getDerivedStateFromProps = (props:IAuth, state:IGameState)=>{
@@ -62,7 +64,21 @@ export default class Game extends Component<IAuth, IGameState>{
             alert("An error has ocurred. Please log in again");
             return(<Redirect to="/login"/>);
         }
-
+        saxios.get(
+            `/api/user/allInvObjects`
+        )
+        .then(
+            ({data})=>{
+                for(let a:number=0;a<data.length;a++){
+                    state.allInventory.push(data[a].objectName);
+                }
+            }
+        )
+        .catch(
+            (err)=>{
+                console.log(err);
+            }
+        )
         return null;    
     }
     componentDidMount(){
@@ -74,6 +90,7 @@ export default class Game extends Component<IAuth, IGameState>{
             ({data})=>{
                 this.setState({
                     user: data,
+                    msg: "",
                     allText: data.userCommands
                 },()=>{
                     if(this.state.user.userRealHealth===0){
@@ -167,8 +184,10 @@ export default class Game extends Component<IAuth, IGameState>{
             }        
         }
 
+        let printed:boolean = false;//to see if it has already printed something or not
+
         //Special case for Equip and Unequip
-        var direction = "";
+        var direction = "AAAAAAAAAA";
         var errorEquipUnequip=false;
         if(realWords[0]==="equip"){
             if(realWords.length===4){
@@ -363,8 +382,6 @@ export default class Game extends Component<IAuth, IGameState>{
                 .then(
                     ({data})=>{
                         let allV:IVerbs[] = data;
-                        let oneInv:boolean = true;//to see if there was already an inventory item interacted when there are more than 1 in the same room
-                        let printed:boolean = false;//to see if it has already printed something or not
                         for (let c:number=0;c<allV.length;c++){//cycle through each verb to see if the first word is a valid verb
                             if(realWords[0]===allV[c].name){
                                 let verbText:string = "object"+allV[c].associateVerb.charAt(0).toUpperCase()+allV[c].associateVerb.slice(1);//the property in each object that will be searched
@@ -390,60 +407,36 @@ export default class Game extends Component<IAuth, IGameState>{
                                         }
                                     }
                                 }
-                                if(verbText!=="objectDrop" && verbText!=="objectEquip" && verbText!=="objectUnequip"){
-                                    for(let a:number = 0;a<this.state.room.roomObjectsInv.length;a++){
-                                        if(this.state.room.roomObjectsInv[a].objectName === objectTextUpC){
-                                            for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsInv[a])).length;b++){
-                                                if((Object.entries(this.state.room.roomObjectsInv[a]))[b][0]===verbText){
-                                                    if(oneInv){
-                                                        oneInv=false;
+                                let ifInv = false;
+                                for(let c:number=0;c<this.state.allInventory.length;c++){
+                                    if(this.state.allInventory[c]===objectTextUpC){
+                                        ifInv=true;
+                                    }
+                                }
+                                if(ifInv){
+                                    let mainArray = [];
+                                    if(verbText==="objectGrab"){
+                                        mainArray = this.state.room.roomObjectsInv;
+                                        
+                                    }else if(verbText!=="objectDrop" && verbText!=="objectEquip" && verbText!=="objectUnequip"){
+                                        mainArray = this.state.user.userInventory;
+                                    }else{
+                                        for(let s:number=0;s<this.state.room.roomObjectsInv.length;s++){
+                                            mainArray.push(this.state.room.roomObjectsInv[s]);
+                                        }
+                                        for(let s:number=0;s<this.state.user.userInventory.length;s++){
+                                            mainArray.push(this.state.user.userInventory[s]);
+                                        }
+                                    }
+                                        for(let a:number=0;a<mainArray.length;a++){
+                                            if(mainArray[a].objectName === objectTextUpC){
+                                                for(let b:number = 0;b<(Object.entries(mainArray[a])).length;b++){
+                                                    if(Object.entries(mainArray[a])[b][0]===verbText){
+                                                        let obj=mainArray[a]
                                                         let uri = ``;
                                                         if(verbText==="objectGrab"){
                                                             uri = `/api/user/grab`;
-                                                            saxios.put(
-                                                                `${uri}`,
-                                                                {
-                                                                    object: this.state.room.roomObjectsInv[a],
-                                                                    currentRName: this.state.room.roomName,
-                                                                    uName: this.state.name,
-                                                                    InvObjs: this.state.room.roomObjectsInv
-                                                                }
-                                                            )
-                                                            .then(
-                                                                ({data})=>{
-                                                                    this.componentDidMount();
-                                                                }
-                                                            )
-                                                            .catch(
-                                                                (err)=>{
-                                                                    console.log(err);
-                                                                }
-                                                            )
                                                         }
-                                                    }
-                                                    this.state.allText.push((Object.entries(this.state.room.roomObjectsInv[a]))[b][1] as string);
-                                                    this.addAndSetState();
-                                                    printed=true;
-                                                    break;    
-                                                }     
-                                            }
-                                        }
-                                    }
-                                    if(!printed){
-                                        this.state.allText.push(`There is no ${objectTextUpC} in this room`);
-                                        this.addAndSetState();
-                                        printed=true;
-                                    }
-                                }
-                                if(verbText!=="objectGrab"){
-                                    for(let a:number=0;a<this.state.user.userInventory.length;a++){
-                                        if(this.state.user.userInventory[a].objectName === objectTextUpC){
-                                            for(let b:number = 0;b<(Object.entries(this.state.user.userInventory[a])).length;b++){
-                                                if(Object.entries(this.state.user.userInventory[a])[b][0]===verbText){
-                                                    if(oneInv){
-                                                        oneInv=false;
-                                                        let obj=this.state.user.userInventory[a]
-                                                        let uri = ``;
                                                         if(verbText==="objectDrop"){
                                                             uri = `/api/user/drop`;
                                                         }
@@ -455,13 +448,18 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             obj=objectTextUpC;
                                                         }
                                                         if(uri!==``){
+                                                            console.log(obj);
+                                                            console.log(this.state.name);
+                                                            console.log(this.state.user.userLeftEquip.objectName);
+                                                            console.log( this.state.user.userRightEquip.objectName);
+                                                            console.log(direction);
                                                             saxios.put(
                                                                 `${uri}`,
                                                                 {
                                                                     object: obj,
                                                                     currentRName: this.state.room.roomName,
                                                                     uName: this.state.name,
-                                                                    InvObjs: this.state.user.userInventory,
+                                                                    InvObjs: mainArray,
                                                                     leftE: this.state.user.userLeftEquip.objectName,
                                                                     rightE: this.state.user.userRightEquip.objectName,
                                                                     dir: direction,
@@ -470,12 +468,11 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             .then(
                                                                 ({data})=>{
                                                                     if(data.msg){
-                                                                        this.state.allText.push(data.msg);
-                                                                        this.addAndSetState();
-                                                                        this.componentDidMount();   
-                                                                        printed=true; 
-                                                                    }
-                                                                    this.componentDidMount();   
+                                                                        this.componentDidMount(); 
+                                                                        this.setState({
+                                                                            msg: data.msg
+                                                                        });
+                                                                    }  
                                                                 }
                                                             )
                                                             .catch(
@@ -485,24 +482,28 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             )    
                                                         }
                                                         if(!printed){
-                                                            this.state.allText.push((Object.entries(this.state.user.userInventory[a])[b][1] as string));
+                                                            if(this.state.msg!==""){
+                                                                this.state.allText.push(`${this.state.msg}`);
+                                                            }else{
+                                                                this.state.allText.push((Object.entries(mainArray[a])[b][1] as string));
+                                                            }
                                                             this.addAndSetState();
-                                                            printed=true;
-                                                            break;        
+                                                            printed=true;  
+                                                            this.componentDidMount();
+                                                            break; 
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
                                     if(!printed){
-                                        this.state.allText.push(`You have no ${objectTextUpC} in your inventory`);
+                                        this.state.allText.push(`There is no ${objectTextUpC} in this room`);
                                         this.addAndSetState();
                                         printed=true;
                                     }
                                 }
                             }
-                        };
+                        }
                         if(!printed){
                             this.state.allText.push(`You can't possibly think to "${realWords[0]}" ${objectTextUpC}`);
                             this.addAndSetState();
@@ -516,7 +517,9 @@ export default class Game extends Component<IAuth, IGameState>{
                 )    
             }
         }
-        this.addAndSetState();
+        if(!printed){
+            this.addAndSetState();
+        }
     }
     onClickBtn = (e: React.MouseEvent<HTMLButtonElement>)=>{
         if(this.state.command!==""){
@@ -578,7 +581,8 @@ interface IGameState{
     allText: string[];
     user: IUser;
     room: IRoom;
-    interactables: string[];
+    allInventory: string[];
+    msg: string;
 }
 interface IUser{
     _id: string;
