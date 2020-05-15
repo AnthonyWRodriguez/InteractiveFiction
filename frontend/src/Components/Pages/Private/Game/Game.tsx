@@ -192,25 +192,26 @@ export default class Game extends Component<IAuth, IGameState>{
                 roomEnemyHealth:remainingHealth,
                 ...room
             }
+        },()=>{
+            saxios.put(
+                `/api/admin/enemies/hitEnemy`,
+                {
+                    userN: this.state.name,
+                    roomN: this.state.room.roomName,
+                    newHP: remainingHealth,
+                }
+            )
+            .then(
+                ({data})=>{
+                    console.log(data);
+                }
+            )
+            .catch(
+                (err)=>{
+                    console.log(err);
+                }
+            )    
         })
-        saxios.put(
-            `/api/admin/enemies/hitEnemy`,
-            {
-                userN: this.state.name,
-                roomN: this.state.room.roomName,
-                newHP: remainingHealth,
-            }
-        )
-        .then(
-            ({data})=>{
-                console.log(data);
-            }
-        )
-        .catch(
-            (err)=>{
-                console.log(err);
-            }
-        )
         if(room.roomEnemyHealth<=0){
             this.state.allText.push(`${enemy.enemyName} died`);
             //change roomEnemyAlive a false
@@ -262,6 +263,32 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push(`You attacked with the ${left.objectName} followed by ${right.objectName},
                         making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
                         //Subtract from enemy
+                        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
+                        this.setState({
+                            room:{
+                                roomEnemyHealth:remainingHealth,
+                                ...room
+                            }
+                        },()=>{
+                            saxios.put(
+                                `/api/admin/enemies/hitEnemy`,
+                                {
+                                    userN: this.state.name,
+                                    roomN: this.state.room.roomName,
+                                    newHP: remainingHealth,
+                                }
+                            )
+                            .then(
+                                ({data})=>{
+                                    console.log(data);
+                                }
+                            )
+                            .catch(
+                                (err)=>{
+                                    console.log(err);
+                                }
+                            )    
+                        })
                         if(room.roomEnemyHealth>=0){
                             this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                             dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
@@ -290,7 +317,38 @@ export default class Game extends Component<IAuth, IGameState>{
                     dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                     //subtract from you
                     if(me.userRealHealth>=0){
+                        this.state.allText.push(`You attacked with the ${left.objectName} followed by ${right.objectName},
+                        making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
+                        //Subtract from enemy
+                        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
+                        this.setState({
+                            room:{
+                                roomEnemyHealth:remainingHealth,
+                                ...room
+                            }
+                        },()=>{
+                            saxios.put(
+                                `/api/admin/enemies/hitEnemy`,
+                                {
+                                    userN: this.state.name,
+                                    roomN: this.state.room.roomName,
+                                    newHP: remainingHealth,
+                                }
+                            )
+                            .then(
+                                ({data})=>{
+                                    console.log(data);
+                                }
+                            )
+                            .catch(
+                                (err)=>{
+                                    console.log(err);
+                                }
+                            )    
+                        })
+                        if(room.roomEnemyHealth>=0){
 
+                        }
                     }
                 }
             }else{
