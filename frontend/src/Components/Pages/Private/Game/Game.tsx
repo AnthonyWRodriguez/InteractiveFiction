@@ -130,6 +130,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                 this.setState({
                                     room: data
                                 },()=>{
+                                    console.log(this.state);
                                     if(allMoves.test(this.state.allText[this.state.allText.length-1])){
                                         if(this.state.room.roomEnemyAlive){
                                             this.state.allText.push(`${this.state.room.roomEnterEnemy}`);
@@ -340,7 +341,7 @@ export default class Game extends Component<IAuth, IGameState>{
                         //Subtract from enemy
                         let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
                         this.hitEnemy(remainingHealth);
-                        if(room.roomEnemyHealth>0){
+                        if((room.roomEnemyHealth-(me.userAtk+left.objectValue+right.objectValue))>0){
                             this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                             dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                            //subtract from you
@@ -385,7 +386,7 @@ export default class Game extends Component<IAuth, IGameState>{
                         //Subtract from enemy
                         let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
                         this.hitEnemy(remainingHealth);
-                        if(room.roomEnemyHealth<=0){
+                        if((room.roomEnemyHealth-(me.userAtk+left.objectValue+right.objectValue))<=0){
                             this.state.allText.push(`${enemy.enemyName} died`);
                             this.killEnemy();
                         }
@@ -427,6 +428,7 @@ export default class Game extends Component<IAuth, IGameState>{
         .then(
             ({data})=>{
                 this.componentDidMount();
+                this.render();
             }
         )
         .catch(
@@ -732,12 +734,17 @@ export default class Game extends Component<IAuth, IGameState>{
                                 }
                                 if(ifInv){
                                     let mainArray:any[] = [];
+                                    let uri:string = ``;
                                     if(verbText==="objectGrab"){
                                         mainArray = this.state.room.roomObjectsInv;
-                                        
+                                        uri = `/api/user/grab`;
+                                    }else if(verbText==="objectUse" || verbText==="objectEat"){
+                                        uri = `/api/user/useHealingItem`;
+                                        mainArray = this.state.user.userInventory;
                                     }else if(verbText!=="objectDrop" && verbText!=="objectEquip" && verbText!=="objectUnequip"){
                                         mainArray = this.state.user.userInventory;
-                                    }else{
+                                    }
+                                    else{
                                         for(let s:number=0;s<this.state.room.roomObjectsInv.length;s++){
                                             mainArray.push(this.state.room.roomObjectsInv[s]);
                                         }
@@ -750,10 +757,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                                 for(let b:number = 0;b<(Object.entries(mainArray[a])).length;b++){
                                                     if(Object.entries(mainArray[a])[b][0]===verbText){
                                                         let obj:string=mainArray[a]
-                                                        let uri:string = ``;
-                                                        if(verbText==="objectGrab"){
-                                                            uri = `/api/user/grab`;
-                                                        }
                                                         if(verbText==="objectDrop"){
                                                             uri = `/api/user/drop`;
                                                         }
@@ -775,6 +778,8 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                     leftE: this.state.user.userLeftEquip.objectName,
                                                                     rightE: this.state.user.userRightEquip.objectName,
                                                                     dir: direction,
+                                                                    realH: this.state.user.userRealHealth,
+                                                                    baseH: this.state.user.userBaseHealth,
                                                                 }
                                                             )
                                                             .then(
