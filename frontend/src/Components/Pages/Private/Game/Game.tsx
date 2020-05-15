@@ -7,6 +7,7 @@ import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
 import { ObjectID } from 'mongodb';
 import { IoIosReturnLeft } from 'react-icons/io';
+import { allMoves } from '../../../Common/Validators/Validators';
 
 export default class Game extends Component<IAuth, IGameState>{
     constructor(props: IAuth){
@@ -128,6 +129,16 @@ export default class Game extends Component<IAuth, IGameState>{
                                 aside.scrollTop = aside.scrollHeight;
                                 this.setState({
                                     room: data
+                                },()=>{
+                                    if(allMoves.test(this.state.allText[this.state.allText.length-1])){
+                                        if(this.state.room.roomEnemyAlive){
+                                            this.state.allText.push(`${this.state.room.roomEnterEnemy}`);
+                                            this.addAndSetState();
+                                        }else{
+                                            this.state.allText.push(`${this.state.room.roomEnter}`);
+                                            this.addAndSetState();
+                                        }
+                                    }
                                 });
                             }
                         )
@@ -186,7 +197,7 @@ export default class Game extends Component<IAuth, IGameState>{
             )
             .then(
                 ({data})=>{
-                    console.log(data);
+                    this.componentDidMount();
                 }
             )
             .catch(
@@ -214,7 +225,7 @@ export default class Game extends Component<IAuth, IGameState>{
             )
             .then(
                 ({data})=>{
-                    console.log(data);
+                    this.componentDidMount();
                 }
             )
             .catch(
@@ -241,7 +252,7 @@ export default class Game extends Component<IAuth, IGameState>{
             )
             .then(
                 ({data})=>{
-                    console.log(data);
+                    this.componentDidMount();
                 }
             )
             .catch(
@@ -280,6 +291,9 @@ export default class Game extends Component<IAuth, IGameState>{
         }
     }
     enemyAttack = (dir:string) =>{
+        let room:IRoom = this.state.room;
+        let left:IEquip = this.state.user.userLeftEquip;
+        let right:IEquip = this.state.user.userRightEquip;
         let direction:IEquip = {
             objectName: "",
             objectType: "",
@@ -303,7 +317,8 @@ export default class Game extends Component<IAuth, IGameState>{
         dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage, but with your ${direction.objectName},
         you reduced the damage to ${rslt}`);
         //subtract from you (using rslt)
-        this.getHit(rslt);
+        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
+        this.hitEnemy(remainingHealth);
         if(me.userRealHealth<=0){
             //Take to kill code(Which is at the end, because it checks for death every didMount)
             return false;
@@ -332,6 +347,7 @@ export default class Game extends Component<IAuth, IGameState>{
                            let myNewHP = (me.userRealHealth - (enemy.enemyATK+enemy.enemyWeapon.objectValue));
                            this.getHit(myNewHP);
                         }else{
+                            this.state.allText.push(`${enemy.enemyName} died`);
                             this.killEnemy();
                         }
                     }else{
@@ -370,6 +386,7 @@ export default class Game extends Component<IAuth, IGameState>{
                         let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
                         this.hitEnemy(remainingHealth);
                         if(room.roomEnemyHealth<=0){
+                            this.state.allText.push(`${enemy.enemyName} died`);
                             this.killEnemy();
                         }
                     }
@@ -398,6 +415,25 @@ export default class Game extends Component<IAuth, IGameState>{
         }else{
             this.state.allText.push(`You have nothing to attack with, try equipping a useful weapon`);
         }
+    }
+    changeRoom=(room:ObjectID|string)=>{
+        saxios.put(
+            `/api/user/changeRoom`,
+            {
+                uName: this.state.name,
+                roomID: room
+            }
+        )
+        .then(
+            ({data})=>{
+                this.componentDidMount();
+            }
+        )
+        .catch(
+            (err)=>{
+                console.log(err);
+            }
+        )
     }
     mainGameCode = ()=>{
         this.state.allText.push(this.state.command);
@@ -531,12 +567,19 @@ export default class Game extends Component<IAuth, IGameState>{
         //End special case
 
         if((realWords[0]==="help" || realWords[0]==="hint") && realWords.length===1){
-            this.state.allText.push(`Help is on its way. You have variouus ways of interacting with the world around you.
-            Just as you just used the verb "help", you can use other verbs to make this world change.
-            For instance, if you want to move, you type "move" and a direction. 
-            If you want to grab something, type "grab" followed by the object you want to try and grab.
-            If you want to get more knowledge of other verbs, type "help" followed by the verb you want to know more about.
-            In the spirit of encouraging exploration, try different verbs and see their effects!`);
+            if(this.state.room.roomEnemyAlive){
+                this.state.allText.push(`You're in a battle! Its his life or yours. Don't be reckless, if you die, I die as well.
+                You can equip some items from your inventory to fight. Once you decide to attack, just type "attack". As a famous
+                general once said: "Good luck".`);
+            }else{
+                this.state.allText.push(`Help is on its way. You have variouus ways of interacting with the world around you.
+                Just as you just used the verb "help", you can use other verbs to make this world change.
+                For instance, if you want to move, you type "move" and a direction. 
+                If you want to grab something, type "grab" followed by the object you want to try and grab.
+                If you want to get more knowledge of other verbs, type "help" followed by the verb you want to know more about.
+                If you want to look at your surroundings, type "look".
+                In the spirit of encouraging exploration, try different verbs and see their effects!`);    
+            }
         }else if(realWords[0]==="exit"){
             this.state.allText.push(`Your progress is automatically saved every command you make.
             If you want to exit, just press Logout or Adventure at the top of your screen`);
@@ -558,17 +601,20 @@ export default class Game extends Component<IAuth, IGameState>{
                 uInv.push(this.state.room.roomObjectsInv[a].objectName);
             }
             if(uInv.length===0){
-                if(this.state.room.roomEnemyAlive){
-                    this.state.allText.push(`${this.state.room.roomEnterEnemy}`);
-                }else{
-                    this.state.allText.push(`${this.state.room.roomEnter}`);
-                }
+                    this.state.allText.push(`${this.state.room.roomLook}`);
             }else{
-                if(this.state.room.roomEnemyAlive){
-                    this.state.allText.push(`${this.state.room.roomEnterEnemy}. In the room you can find: ${uInv}`);
-                }else{
-                    this.state.allText.push(`${this.state.room.roomEnter}. In the room you can find: ${uInv}`);
-                }    
+                    this.state.allText.push(`${this.state.room.roomLook}. In the room you can find: ${uInv}`); 
+            }
+        }
+        else if(realWords[0]==="attack" && realWords.length>1){
+            this.state.allText.push(`If you wish to attack, just type "attack", the complicated maths of what to use 
+            and whom to attack have been figured out by me, your conscience. (No need to praise, but some recognition isn't bad at all).`);
+        }
+        else if(realWords[0]==="attack"){
+            if(this.state.room.roomEnemyAlive){
+                this.attackSequence();
+            }else{
+                this.state.allText.push(`If there is no battle, there no need to attack`);
             }
         }
         else if(realWords.length===1){
@@ -579,6 +625,7 @@ export default class Game extends Component<IAuth, IGameState>{
             this.state.allText.push(`If you want to try and move an object, please use pull or push, its more specific`);
         }
         else if(realWords[0]==="move"){
+            let roomDecision:ObjectID|string = "";
             if(realWords[1]==="forward" ||  realWords[1]==="ahead" || realWords[1]==="north"){
                 if(this.state.room.roomForward.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomForward}`);
@@ -587,24 +634,8 @@ export default class Game extends Component<IAuth, IGameState>{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
-                            saxios.put(
-                                `/api/user/changeRoom`,
-                                {
-                                    uName: this.state.name,
-                                    roomID: this.state.room.roomForward
-                                }
-                            )
-                            .then(
-                                ({data})=>{
-                                    console.log(data);
-                                    this.componentDidMount();
-                                }
-                            )
-                            .catch(
-                                (err)=>{
-                                    console.log(err);
-                                }
-                            )
+                            roomDecision = this.state.room.roomForward;
+                            this.changeRoom(roomDecision);
                         }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
@@ -618,24 +649,8 @@ export default class Game extends Component<IAuth, IGameState>{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
-                            saxios.put(
-                                `/api/user/changeRoom`,
-                                {
-                                    uName: this.state.name,
-                                    roomID: this.state.room.roomBackward
-                                }
-                            )
-                            .then(
-                                ({data})=>{
-                                    console.log(data);
-                                    this.componentDidMount();
-                                }
-                            )
-                            .catch(
-                                (err)=>{
-                                    console.log(err);
-                                }
-                            )
+                            roomDecision = this.state.room.roomBackward;
+                            this.changeRoom(roomDecision);
                         }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
@@ -649,26 +664,8 @@ export default class Game extends Component<IAuth, IGameState>{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
-                            console.log(this.state.name);
-                            console.log(this.state.room.roomLeft);
-                            saxios.put(
-                                `/api/user/changeRoom`,
-                                {
-                                    uName: this.state.name,
-                                    roomID: this.state.room.roomLeft
-                                }
-                            )
-                            .then(
-                                ({data})=>{
-                                    console.log(data);
-                                    this.componentDidMount();
-                                }
-                            )
-                            .catch(
-                                (err)=>{
-                                    console.log(err);
-                                }
-                            )
+                            roomDecision = this.state.room.roomLeft;
+                            this.changeRoom(roomDecision);
                         }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
@@ -682,24 +679,8 @@ export default class Game extends Component<IAuth, IGameState>{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
-                            saxios.put(
-                                `/api/user/changeRoom`,
-                                {
-                                    uName: this.state.name,
-                                    roomID: this.state.room.roomForward
-                                }
-                            )
-                            .then(
-                                ({data})=>{
-                                    console.log(data);
-                                    this.componentDidMount();
-                                }
-                            )
-                            .catch(
-                                (err)=>{
-                                    console.log(err);
-                                }
-                            )
+                            roomDecision = this.state.room.roomRight;
+                            this.changeRoom(roomDecision);
                         }
                     }else{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
@@ -784,11 +765,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             obj=objectTextUpC;
                                                         }
                                                         if(uri!==``){
-                                                            console.log(obj);
-                                                            console.log(this.state.name);
-                                                            console.log(this.state.user.userLeftEquip.objectName);
-                                                            console.log( this.state.user.userRightEquip.objectName);
-                                                            console.log(direction);
                                                             saxios.put(
                                                                 `${uri}`,
                                                                 {
