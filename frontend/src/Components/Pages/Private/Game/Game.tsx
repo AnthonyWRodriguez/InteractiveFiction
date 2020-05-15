@@ -46,7 +46,17 @@ export default class Game extends Component<IAuth, IGameState>{
                 roomBackward: "",
                 roomObjectsInv: [],
                 roomObjectsEnv: [],
-                roomEnemy: "",
+                roomEnemy: {
+                    enemyName: "",
+                    enemyATK: 0,
+                    enemyWeapon:{
+                        objectName: "",
+                        objectType: "",
+                        objectValue: 0,
+                        objectWeight: 0
+                    },
+                    enemyDesc: "",
+                },
                 roomEnemyHealth: 1,
                 roomEnemyAlive: false,
                 roomLeftBool: false,
@@ -159,6 +169,130 @@ export default class Game extends Component<IAuth, IGameState>{
             aside.scrollTop = aside.scrollHeight;
         });
     }
+    directionAttack = (dir:string) =>{
+        let direction:IEquip = {
+            objectName: "",
+            objectType: "",
+            objectValue: 0,
+            objectWeight: 0
+        };
+        if(dir==="left"){
+            direction = this.state.user.userLeftEquip;
+        }else{
+            direction = this.state.user.userRightEquip;
+        }
+        let enemy:IEnemy = this.state.room.roomEnemy;
+        let me:IUser = this.state.user;
+        let room:IRoom = this.state.room;
+        this.state.allText.push(`You attacked with the ${direction.objectName}, dealing ${me.userAtk+direction.objectValue} damage`);
+        //Subtract from enemy
+        if(room.roomEnemyHealth<=0){
+            this.state.allText.push(`${enemy.enemyName} died`);
+            //change roomEnemyAlive a false
+            return false;
+        }else{
+            return true;
+        }
+    }
+    enemyAttack = (dir:string) =>{
+        let direction:IEquip = {
+            objectName: "",
+            objectType: "",
+            objectValue: 0,
+            objectWeight: 0
+        };
+        if(dir==="left"){
+            direction = this.state.user.userLeftEquip;
+        }else{
+            direction = this.state.user.userRightEquip;
+        }
+        let enemy:IEnemy = this.state.room.roomEnemy;
+        let me:IUser = this.state.user;
+        let rslt:number=0;
+        if(direction.objectValue>=(enemy.enemyATK+enemy.enemyWeapon.objectValue)){
+            rslt=0;
+        }else{
+            rslt=(direction.objectValue-(enemy.enemyATK+enemy.enemyWeapon.objectValue));
+        }
+        this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
+        dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage, but with your ${direction.objectName},
+        you reduced the damage to ${rslt}`);
+        //subtract from you (using rslt)
+        if(me.userRealHealth<=0){
+            //Take to kill code
+            return false;
+        }
+        return true;
+    }
+    attackSequence = ()=>{
+        let left:IEquip = this.state.user.userLeftEquip;
+        let right:IEquip = this.state.user.userRightEquip;
+        let enemy:IEnemy = this.state.room.roomEnemy;
+        let me:IUser = this.state.user;
+        let room:IRoom = this.state.room;
+        if(left.objectType==="ATK"){
+            if(right.objectType==="ATK"){
+                if(left.objectWeight<=enemy.enemyWeapon.objectWeight){
+                    if(left.objectWeight+right.objectWeight<=enemy.enemyWeapon.objectWeight){
+                        this.state.allText.push(`You attacked with the ${left.objectName} followed by ${right.objectName},
+                        making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
+                        //Subtract from enemy
+                        if(room.roomEnemyHealth>=0){
+                            this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
+                            dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
+                        }
+                    }else{
+                        if(this.directionAttack("left")){
+                            this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
+                            dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
+                            //subtract from you
+                            if(me.userRealHealth>=0){
+                                this.directionAttack("right")
+                            }
+                        }
+                    }
+                }else if(right.objectWeight<=enemy.enemyWeapon.objectWeight){
+                    if(this.directionAttack("right")){
+                        this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
+                        dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
+                        //subtract from you
+                        if(me.userRealHealth>=0){
+                            this.directionAttack("left")
+                        }
+                    }
+                }else{
+                    this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
+                    dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
+                    //subtract from you
+                    if(me.userRealHealth>=0){
+
+                    }
+                }
+            }else{
+                if(right.objectWeight+left.objectWeight <= enemy.enemyWeapon.objectWeight){
+                    if(this.directionAttack("left")){
+                        this.enemyAttack("right");
+                    }
+                }else{
+                    if(this.enemyAttack("right")){
+                        this.directionAttack("left");
+                    }
+                }
+            }
+        }else if(right.objectType==="ATK"){
+            if(right.objectWeight+left.objectWeight <= enemy.enemyWeapon.objectWeight){
+                if(this.directionAttack("right")){
+                    this.enemyAttack("left");
+                }
+            }else{
+                if(this.enemyAttack("left")){
+                    this.directionAttack("right");
+                }
+            }
+        }else{
+            this.state.allText.push(`You have nothing to attack with, try equipping a useful weapon`);
+        }
+    }
     mainGameCode = ()=>{
         this.state.allText.push(this.state.command);
         let lower:string = this.state.command.toLowerCase();
@@ -186,8 +320,8 @@ export default class Game extends Component<IAuth, IGameState>{
         let printed:boolean = false;//to see if it has already printed something or not
 
         //Special case for Equip and Unequip
-        var direction = "AAAAAAAAAA";
-        var errorEquipUnequip=false;
+        let direction:string = "AAAAAAAAAA";
+        let errorEquipUnequip:boolean = false;
         if(realWords[0]==="equip"){
             if(realWords.length===4){
                 if(realWords[1]==="left" || realWords[1]==="left-hand"){  
@@ -303,7 +437,7 @@ export default class Game extends Component<IAuth, IGameState>{
         }
         else if(realWords[0]==="inventory"){
             let uInv:string[] = [];
-            for(let a=0;a<this.state.user.userInventory.length;a++){
+            for(let a:number=0;a<this.state.user.userInventory.length;a++){
                 uInv.push(this.state.user.userInventory[a].objectName);
             }
             this.state.allText.push(`Your current inventory is: ${uInv}`);
@@ -314,7 +448,7 @@ export default class Game extends Component<IAuth, IGameState>{
         }
         else if(realWords[0]==="look" || realWords[0]==="observe"){
             let uInv:string[] = [];
-            for(let a=0;a<this.state.room.roomObjectsInv.length;a++){
+            for(let a:number=0;a<this.state.room.roomObjectsInv.length;a++){
                 uInv.push(this.state.room.roomObjectsInv[a].objectName);
             }
             if(uInv.length===0){
@@ -485,11 +619,14 @@ export default class Game extends Component<IAuth, IGameState>{
                                         printed=true;
                                     }
                                 }
+                                if(this.state.room.roomEnemyAlive){}
+                                if(this.state.room.roomEnemyAlive){}
                                 for(let a:number = 0;a<this.state.room.roomObjectsEnv.length;a++){
                                     if(this.state.room.roomObjectsEnv[a].objectName === objectTextUpC){
                                         for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsEnv[a])).length;b++){
                                             if((Object.entries(this.state.room.roomObjectsEnv[a]))[b][0]===verbText){
                                                 this.state.allText.push((Object.entries(this.state.room.roomObjectsEnv[a]))[b][1] as string);
+
                                                 this.addAndSetState();
                                                 printed=true;
                                                 break;
@@ -500,14 +637,14 @@ export default class Game extends Component<IAuth, IGameState>{
                                         }
                                     }
                                 }
-                                let ifInv = false;
+                                let ifInv:boolean = false;
                                 for(let c:number=0;c<this.state.allInventory.length;c++){
                                     if(this.state.allInventory[c]===objectTextUpC){
                                         ifInv=true;
                                     }
                                 }
                                 if(ifInv){
-                                    let mainArray = [];
+                                    let mainArray:any[] = [];
                                     if(verbText==="objectGrab"){
                                         mainArray = this.state.room.roomObjectsInv;
                                         
@@ -525,8 +662,8 @@ export default class Game extends Component<IAuth, IGameState>{
                                             if(mainArray[a].objectName === objectTextUpC){
                                                 for(let b:number = 0;b<(Object.entries(mainArray[a])).length;b++){
                                                     if(Object.entries(mainArray[a])[b][0]===verbText){
-                                                        let obj=mainArray[a]
-                                                        let uri = ``;
+                                                        let obj:string=mainArray[a]
+                                                        let uri:string = ``;
                                                         if(verbText==="objectGrab"){
                                                             uri = `/api/user/grab`;
                                                         }
@@ -627,7 +764,7 @@ export default class Game extends Component<IAuth, IGameState>{
         }
     }
     render(){
-        let num=0;
+        let num:number=0;
         let uiItems:object;
         if(this.state.allText!==null){
             uiItems = this.state.allText.map(
@@ -698,7 +835,7 @@ interface IRoom{
     roomBackward: ObjectID|string;
     roomObjectsInv: any[]
     roomObjectsEnv: any[]
-    roomEnemy: string;
+    roomEnemy: IEnemy;
     roomEnemyHealth: number;
     roomEnemyAlive: boolean;
     roomLeftBool: boolean;
@@ -716,4 +853,10 @@ interface IEquip{
     objectType: string;
     objectValue: number;
     objectWeight: number;
+}
+interface IEnemy{
+    enemyName: string;
+    enemyATK: number;
+    enemyWeapon: IEquip;
+    enemyDesc: string;
 }
