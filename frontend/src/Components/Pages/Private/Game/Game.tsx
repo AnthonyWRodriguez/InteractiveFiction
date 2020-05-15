@@ -169,24 +169,8 @@ export default class Game extends Component<IAuth, IGameState>{
             aside.scrollTop = aside.scrollHeight;
         });
     }
-    directionAttack = (dir:string) =>{
-        let direction:IEquip = {
-            objectName: "",
-            objectType: "",
-            objectValue: 0,
-            objectWeight: 0
-        };
-        if(dir==="left"){
-            direction = this.state.user.userLeftEquip;
-        }else{
-            direction = this.state.user.userRightEquip;
-        }
-        let enemy:IEnemy = this.state.room.roomEnemy;
-        let me:IUser = this.state.user;
+    hitEnemy=(remainingHealth:number)=>{
         let room:IRoom = this.state.room;
-        this.state.allText.push(`You attacked with the ${direction.objectName}, dealing ${me.userAtk+direction.objectValue} damage`);
-        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+direction.objectValue));
-        //Subtract from enemy
         this.setState({
             room:{
                 roomEnemyHealth:remainingHealth,
@@ -212,34 +196,58 @@ export default class Game extends Component<IAuth, IGameState>{
                 }
             )    
         })
+    }
+    killEnemy = () =>{
+        let room:IRoom = this.state.room;
+        this.setState({
+            room:{
+                roomEnemyAlive:false,
+                ...room
+            }
+        },()=>{
+            saxios.put(
+                `/api/admin/enemies/killedEnemy`,
+                {
+                    userN: this.state.name,
+                    roomN: this.state.room.roomName,
+                }
+            )
+            .then(
+                ({data})=>{
+                    console.log(data);
+                }
+            )
+            .catch(
+                (err)=>{
+                    console.log(err);
+                }
+            )    
+        })
+    }
+    directionAttack = (dir:string) =>{
+        let direction:IEquip = {
+            objectName: "",
+            objectType: "",
+            objectValue: 0,
+            objectWeight: 0
+        };
+        if(dir==="left"){
+            direction = this.state.user.userLeftEquip;
+        }else{
+            direction = this.state.user.userRightEquip;
+        }
+        let enemy:IEnemy = this.state.room.roomEnemy;
+        let me:IUser = this.state.user;
+        let room:IRoom = this.state.room;
+        this.state.allText.push(`You attacked with the ${direction.objectName}, dealing ${me.userAtk+direction.objectValue} damage`);
+        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+direction.objectValue));
+        //Subtract from enemy
+        this.hitEnemy(remainingHealth);
         if(room.roomEnemyHealth<=0){
             this.state.allText.push(`${enemy.enemyName} died`);
             //change roomEnemyAlive a false
-            this.setState({
-                room:{
-                    roomEnemyAlive:false,
-                    ...room
-                }
-            },()=>{
-                saxios.put(
-                    `/api/admin/enemies/killedEnemy`,
-                    {
-                        userN: this.state.name,
-                        roomN: this.state.room.roomName,
-                    }
-                )
-                .then(
-                    ({data})=>{
-                        console.log(data);
-                    }
-                )
-                .catch(
-                    (err)=>{
-                        console.log(err);
-                    }
-                )    
-                return false;
-            })
+            this.killEnemy();
+            return false;
         }else{
             return true;
         }
@@ -268,8 +276,9 @@ export default class Game extends Component<IAuth, IGameState>{
         dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage, but with your ${direction.objectName},
         you reduced the damage to ${rslt}`);
         //subtract from you (using rslt)
+
         if(me.userRealHealth<=0){
-            //Take to kill code
+            //Take to kill code(Which is at the end, because it checks for death every didMount)
             return false;
         }
         return true;
@@ -288,60 +297,13 @@ export default class Game extends Component<IAuth, IGameState>{
                         making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
                         //Subtract from enemy
                         let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
-                        this.setState({
-                            room:{
-                                roomEnemyHealth:remainingHealth,
-                                ...room
-                            }
-                        },()=>{
-                            saxios.put(
-                                `/api/admin/enemies/hitEnemy`,
-                                {
-                                    userN: this.state.name,
-                                    roomN: this.state.room.roomName,
-                                    newHP: remainingHealth,
-                                }
-                            )
-                            .then(
-                                ({data})=>{
-                                    console.log(data);
-                                }
-                            )
-                            .catch(
-                                (err)=>{
-                                    console.log(err);
-                                }
-                            )    
-                        })
+                        this.hitEnemy(remainingHealth);
                         if(room.roomEnemyHealth>0){
                             this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                             dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
+                           //subtract from you
                         }else{
-                            this.setState({
-                                room:{
-                                    roomEnemyAlive:false,
-                                    ...room
-                                }
-                            },()=>{
-                                saxios.put(
-                                    `/api/admin/enemies/killedEnemy`,
-                                    {
-                                        userN: this.state.name,
-                                        roomN: this.state.room.roomName,
-                                    }
-                                )
-                                .then(
-                                    ({data})=>{
-                                        console.log(data);
-                                    }
-                                )
-                                .catch(
-                                    (err)=>{
-                                        console.log(err);
-                                    }
-                                )    
-                                return false;
-                            })
+                            this.killEnemy();
                         }
                     }else{
                         if(this.directionAttack("left")){
@@ -371,59 +333,9 @@ export default class Game extends Component<IAuth, IGameState>{
                         making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
                         //Subtract from enemy
                         let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
-                        this.setState({
-                            room:{
-                                roomEnemyHealth:remainingHealth,
-                                ...room
-                            }
-                        },()=>{
-                            saxios.put(
-                                `/api/admin/enemies/hitEnemy`,
-                                {
-                                    userN: this.state.name,
-                                    roomN: this.state.room.roomName,
-                                    newHP: remainingHealth,
-                                }
-                            )
-                            .then(
-                                ({data})=>{
-                                    console.log(data);
-                                }
-                            )
-                            .catch(
-                                (err)=>{
-                                    console.log(err);
-                                }
-                            )    
-                        })
-                        if(room.roomEnemyHealth>0){
-
-                        }else{
-                            this.setState({
-                                room:{
-                                    roomEnemyAlive:false,
-                                    ...room
-                                }
-                            },()=>{
-                                saxios.put(
-                                    `/api/admin/enemies/killedEnemy`,
-                                    {
-                                        userN: this.state.name,
-                                        roomN: this.state.room.roomName,
-                                    }
-                                )
-                                .then(
-                                    ({data})=>{
-                                        console.log(data);
-                                    }
-                                )
-                                .catch(
-                                    (err)=>{
-                                        console.log(err);
-                                    }
-                                )    
-                                return false;
-                            })
+                        this.hitEnemy(remainingHealth);
+                        if(room.roomEnemyHealth<=0){
+                            this.killEnemy();
                         }
                     }
                 }
