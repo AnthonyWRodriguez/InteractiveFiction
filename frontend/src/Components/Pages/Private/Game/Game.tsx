@@ -215,7 +215,31 @@ export default class Game extends Component<IAuth, IGameState>{
         if(room.roomEnemyHealth<=0){
             this.state.allText.push(`${enemy.enemyName} died`);
             //change roomEnemyAlive a false
-            return false;
+            this.setState({
+                room:{
+                    roomEnemyAlive:false,
+                    ...room
+                }
+            },()=>{
+                saxios.put(
+                    `/api/admin/enemies/killedEnemy`,
+                    {
+                        userN: this.state.name,
+                        roomN: this.state.room.roomName,
+                    }
+                )
+                .then(
+                    ({data})=>{
+                        console.log(data);
+                    }
+                )
+                .catch(
+                    (err)=>{
+                        console.log(err);
+                    }
+                )    
+                return false;
+            })
         }else{
             return true;
         }
@@ -289,16 +313,42 @@ export default class Game extends Component<IAuth, IGameState>{
                                 }
                             )    
                         })
-                        if(room.roomEnemyHealth>=0){
+                        if(room.roomEnemyHealth>0){
                             this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                             dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
+                        }else{
+                            this.setState({
+                                room:{
+                                    roomEnemyAlive:false,
+                                    ...room
+                                }
+                            },()=>{
+                                saxios.put(
+                                    `/api/admin/enemies/killedEnemy`,
+                                    {
+                                        userN: this.state.name,
+                                        roomN: this.state.room.roomName,
+                                    }
+                                )
+                                .then(
+                                    ({data})=>{
+                                        console.log(data);
+                                    }
+                                )
+                                .catch(
+                                    (err)=>{
+                                        console.log(err);
+                                    }
+                                )    
+                                return false;
+                            })
                         }
                     }else{
                         if(this.directionAttack("left")){
                             this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                             dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                             //subtract from you
-                            if(me.userRealHealth>=0){
+                            if(me.userRealHealth>0){
                                 this.directionAttack("right")
                             }
                         }
@@ -308,7 +358,7 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                         dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                         //subtract from you
-                        if(me.userRealHealth>=0){
+                        if(me.userRealHealth>0){
                             this.directionAttack("left")
                         }
                     }
@@ -316,7 +366,7 @@ export default class Game extends Component<IAuth, IGameState>{
                     this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                     dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                     //subtract from you
-                    if(me.userRealHealth>=0){
+                    if(me.userRealHealth>0){
                         this.state.allText.push(`You attacked with the ${left.objectName} followed by ${right.objectName},
                         making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
                         //Subtract from enemy
@@ -346,8 +396,34 @@ export default class Game extends Component<IAuth, IGameState>{
                                 }
                             )    
                         })
-                        if(room.roomEnemyHealth>=0){
+                        if(room.roomEnemyHealth>0){
 
+                        }else{
+                            this.setState({
+                                room:{
+                                    roomEnemyAlive:false,
+                                    ...room
+                                }
+                            },()=>{
+                                saxios.put(
+                                    `/api/admin/enemies/killedEnemy`,
+                                    {
+                                        userN: this.state.name,
+                                        roomN: this.state.room.roomName,
+                                    }
+                                )
+                                .then(
+                                    ({data})=>{
+                                        console.log(data);
+                                    }
+                                )
+                                .catch(
+                                    (err)=>{
+                                        console.log(err);
+                                    }
+                                )    
+                                return false;
+                            })
                         }
                     }
                 }
