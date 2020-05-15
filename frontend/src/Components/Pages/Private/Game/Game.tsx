@@ -169,6 +169,33 @@ export default class Game extends Component<IAuth, IGameState>{
             aside.scrollTop = aside.scrollHeight;
         });
     }
+    getHit = (newHP:number) =>{
+        let user:IUser = this.state.user;
+        this.setState({
+            user:{
+                userRealHealth: newHP,
+                ...user
+            }
+        },()=>{
+            saxios.put(
+                `/api/user/getHit`,
+                {
+                    userN: this.state.name,
+                    health: newHP
+                }
+            )
+            .then(
+                ({data})=>{
+                    console.log(data);
+                }
+            )
+            .catch(
+                (err)=>{
+                    console.log(err);
+                }
+            )    
+        })
+    }
     hitEnemy=(remainingHealth:number)=>{
         let room:IRoom = this.state.room;
         this.setState({
@@ -178,7 +205,7 @@ export default class Game extends Component<IAuth, IGameState>{
             }
         },()=>{
             saxios.put(
-                `/api/admin/enemies/hitEnemy`,
+                `/api/user/hitEnemy`,
                 {
                     userN: this.state.name,
                     roomN: this.state.room.roomName,
@@ -206,7 +233,7 @@ export default class Game extends Component<IAuth, IGameState>{
             }
         },()=>{
             saxios.put(
-                `/api/admin/enemies/killedEnemy`,
+                `/api/user/killedEnemy`,
                 {
                     userN: this.state.name,
                     roomN: this.state.room.roomName,
@@ -276,7 +303,7 @@ export default class Game extends Component<IAuth, IGameState>{
         dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage, but with your ${direction.objectName},
         you reduced the damage to ${rslt}`);
         //subtract from you (using rslt)
-
+        this.getHit(rslt);
         if(me.userRealHealth<=0){
             //Take to kill code(Which is at the end, because it checks for death every didMount)
             return false;
@@ -302,6 +329,8 @@ export default class Game extends Component<IAuth, IGameState>{
                             this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                             dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                            //subtract from you
+                           let myNewHP = (me.userRealHealth - (enemy.enemyATK+enemy.enemyWeapon.objectValue));
+                           this.getHit(myNewHP);
                         }else{
                             this.killEnemy();
                         }
@@ -310,6 +339,8 @@ export default class Game extends Component<IAuth, IGameState>{
                             this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                             dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                             //subtract from you
+                            let myNewHP = (me.userRealHealth - (enemy.enemyATK+enemy.enemyWeapon.objectValue));
+                            this.getHit(myNewHP);
                             if(me.userRealHealth>0){
                                 this.directionAttack("right")
                             }
@@ -320,6 +351,8 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                         dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                         //subtract from you
+                        let myNewHP = (me.userRealHealth - (enemy.enemyATK+enemy.enemyWeapon.objectValue));
+                        this.getHit(myNewHP);
                         if(me.userRealHealth>0){
                             this.directionAttack("left")
                         }
@@ -328,6 +361,8 @@ export default class Game extends Component<IAuth, IGameState>{
                     this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                     dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                     //subtract from you
+                    let myNewHP = (me.userRealHealth - (enemy.enemyATK+enemy.enemyWeapon.objectValue));
+                    this.getHit(myNewHP);
                     if(me.userRealHealth>0){
                         this.state.allText.push(`You attacked with the ${left.objectName} followed by ${right.objectName},
                         making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
