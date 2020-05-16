@@ -260,6 +260,7 @@ export default class Game extends Component<IAuth, IGameState>{
                         ({data})=>{
                             for(let a:number=0;a<data.length;a++){
                                 if(data[a].roomID===this.state.user.userCurrentRoom){
+                                    let chestName:string = data[a].chest.objectName;
                                     saxios.put(
                                         `/api/user/addChestToRoom`,
                                         {
@@ -270,7 +271,8 @@ export default class Game extends Component<IAuth, IGameState>{
                                     )
                                     .then(
                                         ({data})=>{
-                                            this.state.allText.push(`As the enemy vanishes into thin air, a chest appears out of nowhere.`);
+                                            this.state.allText.push(`As the enemy vanishes into thin air, a chest appears out of nowhere.
+                                            The chest has an inscription that says "${chestName}"`);
                                             this.addAndSetState();
                                         }
                                     )
@@ -363,7 +365,6 @@ export default class Game extends Component<IAuth, IGameState>{
         return true;
     }
     attackSequence = ()=>{
-        console.log(this.state);
         let left:IEquip = this.state.user.userLeftEquip;
         let right:IEquip = this.state.user.userRightEquip;
         let enemy:IEnemy = this.state.room.roomEnemy;
@@ -611,7 +612,7 @@ export default class Game extends Component<IAuth, IGameState>{
                 You can equip some items from your inventory to fight. Once you decide to attack, just type "attack". As a famous
                 general once said: "Good luck".`);
             }else{
-                this.state.allText.push(`Help is on its way. You have variouus ways of interacting with the world around you.
+                this.state.allText.push(`Help is on its way. You have various ways of interacting with the world around you.
                 Just as you just used the verb "help", you can use other verbs to make this world change.
                 For instance, if you want to move, you type "move" and a direction. 
                 If you want to grab something, type "grab" followed by the object you want to try and grab.
@@ -623,8 +624,11 @@ export default class Game extends Component<IAuth, IGameState>{
             this.state.allText.push(`Your progress is automatically saved every command you make.
             If you want to exit, just press Logout or Adventure at the top of your screen`);
         }
+        else if(realWords[0]==="close"){
+            this.state.allText.push(`There is no benefit in closing something, so why try and close it? Just... leave it as it is.`);
+        }
         else if(realWords[0]==="eat"){
-            this.state.allText.push(`Rather than eating a questionable item, I implore you to "use" it. For your (and my) health`);
+            this.state.allText.push(`Rather than eating a questionable item, I implore you to "use" it. For your (and my) health.`);
         }
         else if(realWords[0]==="inventory"){
             let uInv:string[] = [];
@@ -665,6 +669,9 @@ export default class Game extends Component<IAuth, IGameState>{
         }
         else if(realWords[0]==="move" && realWords.length>2){
             this.state.allText.push(`If you want to try and move an object, please use pull or push, its more specific`);
+        }
+        else if((realWords[0]==="open") && realWords.length===2){
+            this.state.allText.push(`There may be more than 1 object with that generic name, please be more specific with the object you interact with`)
         }
         else if(realWords[0]==="move"){
             let roomDecision:ObjectID|string = "";
@@ -748,22 +755,38 @@ export default class Game extends Component<IAuth, IGameState>{
                                         printed=true;
                                     }
                                 }
-                                if(this.state.room.roomEnemyAlive){}
-                                if(this.state.room.roomEnemyAlive){}
                                 for(let a:number = 0;a<this.state.room.roomObjectsEnv.length;a++){
                                     if(this.state.room.roomObjectsEnv[a].objectName === objectTextUpC){
                                         for(let b:number = 0;b<(Object.entries(this.state.room.roomObjectsEnv[a])).length;b++){
                                             if((Object.entries(this.state.room.roomObjectsEnv[a]))[b][0]===verbText){
-                                                this.state.allText.push((Object.entries(this.state.room.roomObjectsEnv[a]))[b][1] as string);
-
-                                                this.addAndSetState();
-                                                printed=true;
-                                                break;
-                                            }     
+                                                for(let c:number = 0;c<(Object.entries(this.state.room.roomObjectsEnv[a])).length;c++){
+                                                    if(Object.entries(this.state.room.roomObjectsEnv[a])[c][0]===(verbText+"Bool")){
+                                                        if (Object.entries(this.state.room.roomObjectsEnv[a])[c][1]){
+                                                            this.state.allText.push(`A special event shall happen`);
+                                                            this.addAndSetState();
+                                                            printed=true;
+                                                            break;
+                                                        }else{
+                                                            this.state.allText.push(`${(Object.entries(this.state.room.roomObjectsEnv[a]))[b][1]}`);
+                                                            this.addAndSetState();
+                                                            printed=true;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                                if(printed){
+                                                    break;
+                                                }     
+                                            }
                                         }
                                         if(printed){
                                             break;
                                         }
+                                    }
+                                    if(!printed){
+                                        this.state.allText.push(`There's no ${objectTextUpC} available to ${allV[c].associateVerb}`);
+                                        this.addAndSetState();
+                                        printed=true;
                                     }
                                 }
                                 let ifInv:boolean = false;
