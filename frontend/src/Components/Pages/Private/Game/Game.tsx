@@ -130,7 +130,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                 this.setState({
                                     room: data
                                 },()=>{
-                                    console.log(this.state);
                                     if(allMoves.test(this.state.allText[this.state.allText.length-1])){
                                         if(this.state.room.roomEnemyAlive){
                                             this.state.allText.push(`${this.state.room.roomEnterEnemy}`);
@@ -254,6 +253,41 @@ export default class Game extends Component<IAuth, IGameState>{
             .then(
                 ({data})=>{
                     this.componentDidMount();
+                    saxios.get(
+                        `/api/user/allChestRoom`
+                    )
+                    .then(
+                        ({data})=>{
+                            for(let a:number=0;a<data.length;a++){
+                                if(data[a].roomID===this.state.user.userCurrentRoom){
+                                    saxios.put(
+                                        `/api/user/addChestToRoom`,
+                                        {
+                                            uName: this.state.name, 
+                                            currentRName: this.state.room.roomName, 
+                                            chest: data[a].chest
+                                        }
+                                    )
+                                    .then(
+                                        ({data})=>{
+                                            this.state.allText.push(`As the enemy vanishes into thin air, a chest appears out of nowhere.`);
+                                            this.addAndSetState();
+                                        }
+                                    )
+                                    .catch(
+                                        (err)=>{
+                                            console.log(err);
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    )
+                    .catch(
+                        (err)=>{
+                            console.log(err);
+                        }
+                    )
                 }
             )
             .catch(
@@ -270,6 +304,8 @@ export default class Game extends Component<IAuth, IGameState>{
             objectValue: 0,
             objectWeight: 0
         };
+        let left:IEquip = this.state.user.userLeftEquip;
+        let right:IEquip = this.state.user.userRightEquip;
         if(dir==="left"){
             direction = this.state.user.userLeftEquip;
         }else{
@@ -282,7 +318,7 @@ export default class Game extends Component<IAuth, IGameState>{
         let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+direction.objectValue));
         //Subtract from enemy
         this.hitEnemy(remainingHealth);
-        if(room.roomEnemyHealth<=0){
+        if((room.roomEnemyHealth-(me.userAtk*(left.objectValue+right.objectValue)))<=0){
             this.state.allText.push(`${enemy.enemyName} died`);
             //change roomEnemyAlive a false
             this.killEnemy();
@@ -327,6 +363,7 @@ export default class Game extends Component<IAuth, IGameState>{
         return true;
     }
     attackSequence = ()=>{
+        console.log(this.state);
         let left:IEquip = this.state.user.userLeftEquip;
         let right:IEquip = this.state.user.userRightEquip;
         let enemy:IEnemy = this.state.room.roomEnemy;
@@ -339,9 +376,9 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push(`You attacked with the ${left.objectName} followed by ${right.objectName},
                         making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
                         //Subtract from enemy
-                        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
+                        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk*(left.objectValue+right.objectValue)));
                         this.hitEnemy(remainingHealth);
-                        if((room.roomEnemyHealth-(me.userAtk+left.objectValue+right.objectValue))>0){
+                        if((room.roomEnemyHealth-(me.userAtk*(left.objectValue+right.objectValue)))>0){
                             this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                             dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                            //subtract from you
@@ -384,9 +421,9 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push(`You attacked with the ${left.objectName} followed by ${right.objectName},
                         making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
                         //Subtract from enemy
-                        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
+                        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk*(left.objectValue+right.objectValue)));
                         this.hitEnemy(remainingHealth);
-                        if((room.roomEnemyHealth-(me.userAtk+left.objectValue+right.objectValue))<=0){
+                        if((room.roomEnemyHealth-(me.userAtk*(left.objectValue+right.objectValue)))<=0){
                             this.state.allText.push(`${enemy.enemyName} died`);
                             this.killEnemy();
                         }
@@ -585,6 +622,9 @@ export default class Game extends Component<IAuth, IGameState>{
         }else if(realWords[0]==="exit"){
             this.state.allText.push(`Your progress is automatically saved every command you make.
             If you want to exit, just press Logout or Adventure at the top of your screen`);
+        }
+        else if(realWords[0]==="eat"){
+            this.state.allText.push(`Rather than eating a questionable item, I implore you to "use" it. For your (and my) health`);
         }
         else if(realWords[0]==="inventory"){
             let uInv:string[] = [];
@@ -814,7 +854,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                             }
                                         }
                                     if(!printed){
-                                        this.state.allText.push(`There is no ${objectTextUpC} in this room`);
+                                        this.state.allText.push(`There's no ${objectTextUpC} available to ${allV[c].associateVerb}`);
                                         this.addAndSetState();
                                         printed=true;
                                     }

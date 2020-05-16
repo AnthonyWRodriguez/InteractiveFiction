@@ -37,7 +37,7 @@ Floor5: Gold
 Only 1 enemy per room (if intended to have one)
 (can possibly be goblin, orc or skelletal soldier)
 
-(Random drops after each enemy kill?)
+(Random drops after each enemy kill?)BIG FAT NO
 -At least with first enemy, no
 -Then, with progressing in the game, make the odds for better items bigger
 -This will be done with one random roll, then compare them by order of least likely to most likely. If it is within range of any one, that one spawns and stops the trial and error of dropped items
