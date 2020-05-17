@@ -765,7 +765,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             let uri:string = '';
                                                             let msg:string = '';
                                                             if(realWords[0]==="open"){
-                                                                msg = `You opened the ${objectTextUpC}`;
+                                                                msg = `${(Object.entries(this.state.room.roomObjectsEnv[a]))[b][1]}`;
                                                                 if(realWords[2]==="door"||realWords[2]==="doors"||realWords[2]==="Door"||realWords[2]==="doors"){
                                                                     uri = `/api/user/openDoor`;
                                                                 }
@@ -773,26 +773,21 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                     uri = `/api/user/openChest`;
                                                                 }
                                                             }
-                                                            if(realWords[0]==="close"){
-                                                                msg = `You closed the ${objectTextUpC}`;
-                                                                if(realWords[2]==="door"||realWords[2]==="doors"||realWords[2]==="Door"||realWords[2]==="doors"){
-                                                                    uri = `/api/user/closeDoor`;
-                                                                }
-                                                                if(realWords[2]==="chest"||realWords[2]==="Chest"){
-                                                                    uri = `/api/user/closeChest`;
-                                                                }
-                                                            }
                                                             if(uri!==''){
                                                                 saxios.put(
                                                                     uri,
                                                                     {
                                                                         roomID: this.state.user.userCurrentRoom,
-                                                                        uName: this.state.name
+                                                                        uName: this.state.name,
+                                                                        objectN: objectTextUpC,
                                                                     }
                                                                 )
                                                                 .then(
                                                                     ({data})=>{
                                                                         this.state.allText.push(msg);
+                                                                        if(data.more){
+                                                                            this.state.allText.push(data.more);
+                                                                        }
                                                                         this.addAndSetState();
                                                                     }
                                                                 )
@@ -808,6 +803,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             this.state.allText.push(`${(Object.entries(this.state.room.roomObjectsEnv[a]))[b][1]}`);
                                                             this.addAndSetState();
                                                             printed=true;
+                                                            this.componentDidMount();
                                                             break;
                                                         }
                                                     }
@@ -820,11 +816,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                         if(printed){
                                             break;
                                         }
-                                    }
-                                    if(!printed){
-                                        this.state.allText.push(`There's no ${objectTextUpC} available to ${allV[c].associateVerb}`);
-                                        this.addAndSetState();
-                                        printed=true;
                                     }
                                 }
                                 let ifInv:boolean = false;
