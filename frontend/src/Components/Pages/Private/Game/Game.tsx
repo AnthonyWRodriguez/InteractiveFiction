@@ -762,10 +762,47 @@ export default class Game extends Component<IAuth, IGameState>{
                                                 for(let c:number = 0;c<(Object.entries(this.state.room.roomObjectsEnv[a])).length;c++){
                                                     if(Object.entries(this.state.room.roomObjectsEnv[a])[c][0]===(verbText+"Bool")){
                                                         if (Object.entries(this.state.room.roomObjectsEnv[a])[c][1]){
-                                                            this.state.allText.push(`A special event shall happen`);
-                                                            this.addAndSetState();
-                                                            printed=true;
-                                                            break;
+                                                            let uri:string = '';
+                                                            let msg:string = '';
+                                                            if(realWords[0]==="open"){
+                                                                msg = `You opened the ${objectTextUpC}`;
+                                                                if(realWords[2]==="door"||realWords[2]==="doors"||realWords[2]==="Door"||realWords[2]==="doors"){
+                                                                    uri = `/api/user/openDoor`;
+                                                                }
+                                                                if(realWords[2]==="chest"||realWords[2]==="Chest"){
+                                                                    uri = `/api/user/openChest`;
+                                                                }
+                                                            }
+                                                            if(realWords[0]==="close"){
+                                                                msg = `You closed the ${objectTextUpC}`;
+                                                                if(realWords[2]==="door"||realWords[2]==="doors"||realWords[2]==="Door"||realWords[2]==="doors"){
+                                                                    uri = `/api/user/closeDoor`;
+                                                                }
+                                                                if(realWords[2]==="chest"||realWords[2]==="Chest"){
+                                                                    uri = `/api/user/closeChest`;
+                                                                }
+                                                            }
+                                                            if(uri!==''){
+                                                                saxios.put(
+                                                                    uri,
+                                                                    {
+
+                                                                    }
+                                                                )
+                                                                .then(
+                                                                    ({data})=>{
+                                                                        this.state.allText.push(msg);
+                                                                        this.addAndSetState();
+                                                                    }
+                                                                )
+                                                                .catch(
+                                                                    (err)=>{
+                                                                        console.log(err);
+                                                                    }
+                                                                )
+                                                                printed=true;
+                                                                break;
+                                                            }
                                                         }else{
                                                             this.state.allText.push(`${(Object.entries(this.state.room.roomObjectsEnv[a]))[b][1]}`);
                                                             this.addAndSetState();
