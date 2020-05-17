@@ -197,6 +197,7 @@ export default class Game extends Component<IAuth, IGameState>{
             )
             .then(
                 ({data})=>{
+                    this.addAndSetState();
                     this.componentDidMount();
                 }
             )
@@ -225,6 +226,7 @@ export default class Game extends Component<IAuth, IGameState>{
             )
             .then(
                 ({data})=>{
+                    this.addAndSetState();
                     this.componentDidMount();
                 }
             )
@@ -454,6 +456,9 @@ export default class Game extends Component<IAuth, IGameState>{
         }else{
             this.state.allText.push(`You have nothing to attack with, try equipping a useful weapon`);
         }
+        this.addAndSetState();
+        this.componentDidMount();
+        console.log(this.state);
     }
     changeRoom=(room:ObjectID|string)=>{
         saxios.put(
@@ -465,6 +470,7 @@ export default class Game extends Component<IAuth, IGameState>{
         )
         .then(
             ({data})=>{
+                this.addAndSetState();
                 this.componentDidMount();
                 this.render();
             }
@@ -690,6 +696,8 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
+                this.addAndSetState();
+                this.componentDidMount();
             }else if(realWords[1]==="backward" || realWords[1]==="behind" || realWords[1]==="south"){
                 if(this.state.room.roomBackward.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomBackward}`);
@@ -705,6 +713,8 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
+                this.addAndSetState();
+                this.componentDidMount();
             }else if(realWords[1]==="left" || realWords[1]==="west"){
                 if(this.state.room.roomLeft.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomLeft}`);
@@ -720,6 +730,8 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
+                this.addAndSetState();
+                this.componentDidMount();
             }else if(realWords[1]==="east" || realWords[1]==="right" ){
                 if(this.state.room.roomRight.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomRight}`);
@@ -735,9 +747,13 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
+                this.addAndSetState();
+                this.componentDidMount();
             }else{
                 this.state.allText.push(`That is not a valid way to move. Please type a valid "move" command`);
             }
+            this.addAndSetState();
+            this.componentDidMount();
         }
         else{
             if(!errorEquipUnequip){
@@ -789,6 +805,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                             this.state.allText.push(data.more);
                                                                         }
                                                                         this.addAndSetState();
+                                                                        this.componentDidMount();
                                                                     }
                                                                 )
                                                                 .catch(
@@ -877,9 +894,10 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             .then(
                                                                 ({data})=>{
                                                                     if(data.msg){
-                                                                        this.componentDidMount(); 
                                                                         this.setState({
                                                                             msg: data.msg
+                                                                        },()=>{
+                                                                            this.componentDidMount();
                                                                         });
                                                                     }  
                                                                 }
