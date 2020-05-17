@@ -786,7 +786,8 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                 saxios.put(
                                                                     uri,
                                                                     {
-
+                                                                        roomID: this.state.user.userCurrentRoom,
+                                                                        uName: this.state.name
                                                                     }
                                                                 )
                                                                 .then(
