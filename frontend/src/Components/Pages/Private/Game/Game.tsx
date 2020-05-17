@@ -276,6 +276,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                             this.state.allText.push(`As the enemy vanishes into thin air, a chest appears out of nowhere.
                                             The chest has an inscription that says "${chestName}"`);
                                             this.addAndSetState();
+                                            this.componentDidMount();
                                         }
                                     )
                                     .catch(
@@ -459,6 +460,32 @@ export default class Game extends Component<IAuth, IGameState>{
         this.addAndSetState();
         this.componentDidMount();
         console.log(this.state);
+    }
+    checkIfKey = (words:string[])=>{
+        if(words[2]==="door" || words[2]==="doors" || words[2]==="Door" || words[2]==="Doors"){
+            let obj:string = words[1].charAt(0).toUpperCase()+words[1].slice(1)+" Key";
+            saxios.get(
+                `/api/user/getAllObjectsInv/${obj}`
+            )
+            .then(
+                ({data})=>{
+                    if(data!==null){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }
+            )
+            .catch(
+                (err)=>{
+                    console.log(err);
+                    return false;
+                }
+            )
+            return false;
+        }else{
+            return false;
+        }
     }
     changeRoom=(room:ObjectID|string)=>{
         saxios.put(
@@ -777,13 +804,14 @@ export default class Game extends Component<IAuth, IGameState>{
                                             if((Object.entries(this.state.room.roomObjectsEnv[a]))[b][0]===verbText){
                                                 for(let c:number = 0;c<(Object.entries(this.state.room.roomObjectsEnv[a])).length;c++){
                                                     if(Object.entries(this.state.room.roomObjectsEnv[a])[c][0]===(verbText+"Bool")){
-                                                        if (Object.entries(this.state.room.roomObjectsEnv[a])[c][1]){
+                                                        if (Object.entries(this.state.room.roomObjectsEnv[a])[c][1] || this.checkIfKey(realWords)){
                                                             let uri:string = '';
                                                             let msg:string = '';
                                                             if(realWords[0]==="open"){
                                                                 msg = `${(Object.entries(this.state.room.roomObjectsEnv[a]))[b][1]}`;
                                                                 if(realWords[2]==="door"||realWords[2]==="doors"||realWords[2]==="Door"||realWords[2]==="doors"){
                                                                     uri = `/api/user/openDoor`;
+                                                                    msg=`You opened the ${objectTextUpC}`;
                                                                 }
                                                                 if(realWords[2]==="chest"||realWords[2]==="Chest"){
                                                                     uri = `/api/user/openChest`;
