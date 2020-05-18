@@ -1,4 +1,7 @@
 import axios from 'axios';
+import { createBrowserHistory } from "history";
+
+export default createBrowserHistory();
 
 let normalAxios = axios.create();
 normalAxios.defaults.headers.common['cache-control'] = "no-cache";
