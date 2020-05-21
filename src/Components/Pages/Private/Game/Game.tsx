@@ -130,7 +130,10 @@ export default class Game extends Component<IAuth, IGameState>{
                                 this.setState({
                                     room: data
                                 },()=>{
-                                    if(allMoves.test(this.state.allText[this.state.allText.length-1])){
+                                    const words:string[] = this.state.allText[this.state.allText.length-1].split(" ");
+                                    console.log(this.state.allText);
+                                    console.log(words);
+                                    if(allMoves.test(words[1])){
                                         if(this.state.room.roomEnemyAlive){
                                             this.state.allText.push(`${this.state.room.roomEnterEnemy}`);
                                             this.addAndSetState();
@@ -184,8 +187,8 @@ export default class Game extends Component<IAuth, IGameState>{
         let user:IUser = this.state.user;
         this.setState({
             user:{
+                ...user,
                 userRealHealth: newHP,
-                ...user
             }
         },()=>{
             saxios.put(
@@ -212,8 +215,8 @@ export default class Game extends Component<IAuth, IGameState>{
         let room:IRoom = this.state.room;
         this.setState({
             room:{
-                roomEnemyHealth:remainingHealth,
-                ...room
+                ...room,
+                roomEnemyHealth:remainingHealth
             }
         },()=>{
             saxios.put(
@@ -241,8 +244,8 @@ export default class Game extends Component<IAuth, IGameState>{
         let room:IRoom = this.state.room;
         this.setState({
             room:{
+                ...room,
                 roomEnemyAlive:false,
-                ...room
             }
         },()=>{
             saxios.put(
@@ -360,7 +363,7 @@ export default class Game extends Component<IAuth, IGameState>{
         you reduced the damage to ${rslt}`);
         //subtract from you (using rslt)
         let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
-        this.hitEnemy(remainingHealth);
+        this.getHit(remainingHealth);
         if(me.userRealHealth<=0){
             //Take to kill code(Which is at the end, because it checks for death every didMount)
             return false;
@@ -452,7 +455,7 @@ export default class Game extends Component<IAuth, IGameState>{
             }else{
                 if(this.enemyAttack("left")){
                     this.directionAttack("right");
-                }
+                }   
             }
         }else{
             this.state.allText.push(`You have nothing to attack with, try equipping a useful weapon`);
@@ -464,26 +467,12 @@ export default class Game extends Component<IAuth, IGameState>{
     checkIfKey = (words:string[])=>{
         if(words[2]==="door" || words[2]==="doors" || words[2]==="Door" || words[2]==="Doors"){
             let obj:string = words[1].charAt(0).toUpperCase()+words[1].slice(1)+" Key";
-            saxios.get(
-                `/api/user/getAllObjectsInv/${obj}`
-            )
-            .then(
-                ({data})=>{
-                    if(data!==null){
-                        return true;
-                    }else{
-                        return false;
-                    }
+            console.log(obj);
+            for (let x:number=0;x<this.state.user.userInventory.length;x++){
+                if(this.state.user.userInventory[x].objectName===obj){
+                    return true;
                 }
-            )
-            .catch(
-                (err)=>{
-                    console.log(err);
-                    return false;
-                }
-            )
-            return false;
-        }else{
+            }
             return false;
         }
     }
@@ -497,9 +486,9 @@ export default class Game extends Component<IAuth, IGameState>{
         )
         .then(
             ({data})=>{
+                console.log(data);
                 this.addAndSetState();
                 this.componentDidMount();
-                this.render();
             }
         )
         .catch(
@@ -700,13 +689,13 @@ export default class Game extends Component<IAuth, IGameState>{
             this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
             so please, after every verb, please choose an object to interact with`);
         }
-        else if(realWords[0]==="move" && realWords.length>2){
+        else if((realWords[0]==="move" && realWords.length>2) || (realWords[0]==="go" && realWords.length>2)){
             this.state.allText.push(`If you want to try and move an object, please use pull or push, its more specific`);
         }
         else if((realWords[0]==="open") && realWords.length===2){
             this.state.allText.push(`There may be more than 1 object with that generic name, please be more specific with the object you interact with`)
         }
-        else if(realWords[0]==="move"){
+        else if(realWords[0]==="move" || realWords[0]==="go"){
             let roomDecision:ObjectID|string = "";
             if(realWords[1]==="forward" ||  realWords[1]==="ahead" || realWords[1]==="north"){
                 if(this.state.room.roomForward.toString().length>25){
@@ -723,8 +712,6 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
-                this.addAndSetState();
-                this.componentDidMount();
             }else if(realWords[1]==="backward" || realWords[1]==="behind" || realWords[1]==="south"){
                 if(this.state.room.roomBackward.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomBackward}`);
@@ -740,8 +727,6 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
-                this.addAndSetState();
-                this.componentDidMount();
             }else if(realWords[1]==="left" || realWords[1]==="west"){
                 if(this.state.room.roomLeft.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomLeft}`);
@@ -757,8 +742,6 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
-                this.addAndSetState();
-                this.componentDidMount();
             }else if(realWords[1]==="east" || realWords[1]==="right" ){
                 if(this.state.room.roomRight.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomRight}`);
@@ -778,9 +761,9 @@ export default class Game extends Component<IAuth, IGameState>{
                 this.componentDidMount();
             }else{
                 this.state.allText.push(`That is not a valid way to move. Please type a valid "move" command`);
+                this.addAndSetState();
+                this.componentDidMount();
             }
-            this.addAndSetState();
-            this.componentDidMount();
         }
         else{
             if(!errorEquipUnequip){
@@ -1016,7 +999,7 @@ export default class Game extends Component<IAuth, IGameState>{
                     <div className="container d-flex flex-row">
                         <Input
                             type="text" 
-                            className="form-control bg-transparent text-white" 
+                            className="form-control bg-secondary text-white" 
                             placeholder="Enter your command"
                             name="command"
                             value={this.state.command}

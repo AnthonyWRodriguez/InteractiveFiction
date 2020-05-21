@@ -1,6 +1,5 @@
 .container ::placeholder{
     color: white;
-    opacity: 1;
 }
 
 .container :-ms-input-placeholder { /* Internet Explorer 10-11 */
