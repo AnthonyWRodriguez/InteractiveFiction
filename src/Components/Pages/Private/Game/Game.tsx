@@ -103,7 +103,7 @@ export default class Game extends Component<IAuth, IGameState>{
                     msg: "",
                     allText: data.userCommands
                 },()=>{
-                    if(this.state.user.userRealHealth===0){
+                    if(this.state.user.userRealHealth<=0){
                         alert("You died. Restarting from the beginning...");
                         saxios.put(
                             `/api/user/death`,
@@ -131,8 +131,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                     room: data
                                 },()=>{
                                     const words:string[] = this.state.allText[this.state.allText.length-1].split(" ");
-                                    console.log(this.state.allText);
-                                    console.log(words);
                                     if(allMoves.test(words[1])){
                                         if(this.state.room.roomEnemyAlive){
                                             this.state.allText.push(`${this.state.room.roomEnterEnemy}`);
@@ -212,13 +210,6 @@ export default class Game extends Component<IAuth, IGameState>{
         })
     }
     hitEnemy=(remainingHealth:number)=>{
-        let room:IRoom = this.state.room;
-        this.setState({
-            room:{
-                ...room,
-                roomEnemyHealth:remainingHealth
-            }
-        },()=>{
             saxios.put(
                 `/api/user/hitEnemy`,
                 {
@@ -238,7 +229,7 @@ export default class Game extends Component<IAuth, IGameState>{
                     console.log(err);
                 }
             )    
-        })
+
     }
     killEnemy = () =>{
         let room:IRoom = this.state.room;
@@ -257,7 +248,6 @@ export default class Game extends Component<IAuth, IGameState>{
             )
             .then(
                 ({data})=>{
-                    this.componentDidMount();
                     saxios.get(
                         `/api/user/allChestRoom`
                     )
@@ -305,15 +295,14 @@ export default class Game extends Component<IAuth, IGameState>{
             )    
         })
     }
-    directionAttack = (dir:string) =>{
+    directionAttack = (dir:string, h:number) =>{
         let direction:IEquip = {
             objectName: "",
             objectType: "",
             objectValue: 0,
             objectWeight: 0
         };
-        let left:IEquip = this.state.user.userLeftEquip;
-        let right:IEquip = this.state.user.userRightEquip;
+
         if(dir==="left"){
             direction = this.state.user.userLeftEquip;
         }else{
@@ -322,23 +311,25 @@ export default class Game extends Component<IAuth, IGameState>{
         let enemy:IEnemy = this.state.room.roomEnemy;
         let me:IUser = this.state.user;
         let room:IRoom = this.state.room;
-        this.state.allText.push(`You attacked with the ${direction.objectName}, dealing ${me.userAtk+direction.objectValue} damage`);
-        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+direction.objectValue));
+        this.state.allText.push(`You attacked with a ${direction.objectName}, dealing ${me.userAtk+direction.objectValue} damage`);
+        let remainingHealth:number = (h - (me.userAtk+direction.objectValue));
         //Subtract from enemy
         this.hitEnemy(remainingHealth);
-        if((room.roomEnemyHealth-(me.userAtk*(left.objectValue+right.objectValue)))<=0){
-            this.state.allText.push(`${enemy.enemyName} died`);
-            //change roomEnemyAlive a false
-            this.killEnemy();
-            return false;
-        }else{
-            return true;
-        }
+        this.setState({
+            room:{
+                ...room,
+                roomEnemyHealth:remainingHealth
+            }
+        },()=>{
+            if(remainingHealth<=0){
+                this.state.allText.push(`${enemy.enemyName} died...`)
+                //change roomEnemyAlive a false
+                this.killEnemy();
+            }
+        });
+        return remainingHealth;
     }
     enemyAttack = (dir:string) =>{
-        let room:IRoom = this.state.room;
-        let left:IEquip = this.state.user.userLeftEquip;
-        let right:IEquip = this.state.user.userRightEquip;
         let direction:IEquip = {
             objectName: "",
             objectType: "",
@@ -362,7 +353,7 @@ export default class Game extends Component<IAuth, IGameState>{
         dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage, but with your ${direction.objectName},
         you reduced the damage to ${rslt}`);
         //subtract from you (using rslt)
-        let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk+left.objectValue+right.objectValue));
+        let remainingHealth:number = (me.userRealHealth-(enemy.enemyATK+enemy.enemyWeapon.objectValue));
         this.getHit(remainingHealth);
         if(me.userRealHealth<=0){
             //Take to kill code(Which is at the end, because it checks for death every didMount)
@@ -392,30 +383,32 @@ export default class Game extends Component<IAuth, IGameState>{
                            let myNewHP = (me.userRealHealth - (enemy.enemyATK+enemy.enemyWeapon.objectValue));
                            this.getHit(myNewHP);
                         }else{
-                            this.state.allText.push(`${enemy.enemyName} died`);
+                            this.state.allText.push(`${enemy.enemyName} died...`);
                             this.killEnemy();
                         }
                     }else{
-                        if(this.directionAttack("left")){
+                        let h:number = this.directionAttack("left", this.state.room.roomEnemyHealth);
+                        if(h>0){
                             this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                             dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                             //subtract from you
                             let myNewHP = (me.userRealHealth - (enemy.enemyATK+enemy.enemyWeapon.objectValue));
                             this.getHit(myNewHP);
                             if(me.userRealHealth>0){
-                                this.directionAttack("right")
+                                this.directionAttack("right", h);
                             }
                         }
                     }
                 }else if(right.objectWeight<=enemy.enemyWeapon.objectWeight){
-                    if(this.directionAttack("right")){
+                    let h:number = this.directionAttack("right", this.state.room.roomEnemyHealth)
+                    if(h>0){
                         this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                         dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
                         //subtract from you
                         let myNewHP = (me.userRealHealth - (enemy.enemyATK+enemy.enemyWeapon.objectValue));
                         this.getHit(myNewHP);
                         if(me.userRealHealth>0){
-                            this.directionAttack("left")
+                            this.directionAttack("left", h)
                         }
                     }
                 }else{
@@ -431,30 +424,30 @@ export default class Game extends Component<IAuth, IGameState>{
                         let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk*(left.objectValue+right.objectValue)));
                         this.hitEnemy(remainingHealth);
                         if((room.roomEnemyHealth-(me.userAtk*(left.objectValue+right.objectValue)))<=0){
-                            this.state.allText.push(`${enemy.enemyName} died`);
+                            this.state.allText.push(`${enemy.enemyName} died...`);
                             this.killEnemy();
                         }
                     }
                 }
             }else{
                 if(right.objectWeight+left.objectWeight <= enemy.enemyWeapon.objectWeight){
-                    if(this.directionAttack("left")){
+                    if(this.directionAttack("left", this.state.room.roomEnemyHealth)>0){
                         this.enemyAttack("right");
                     }
                 }else{
                     if(this.enemyAttack("right")){
-                        this.directionAttack("left");
+                        this.directionAttack("left", this.state.room.roomEnemyHealth);
                     }
                 }
             }
         }else if(right.objectType==="ATK"){
             if(right.objectWeight+left.objectWeight <= enemy.enemyWeapon.objectWeight){
-                if(this.directionAttack("right")){
+                if(this.directionAttack("right", this.state.room.roomEnemyHealth)>0){
                     this.enemyAttack("left");
                 }
             }else{
                 if(this.enemyAttack("left")){
-                    this.directionAttack("right");
+                    this.directionAttack("right", this.state.room.roomEnemyHealth);
                 }   
             }
         }else{
@@ -462,12 +455,10 @@ export default class Game extends Component<IAuth, IGameState>{
         }
         this.addAndSetState();
         this.componentDidMount();
-        console.log(this.state);
     }
     checkIfKey = (words:string[])=>{
         if(words[2]==="door" || words[2]==="doors" || words[2]==="Door" || words[2]==="Doors"){
             let obj:string = words[1].charAt(0).toUpperCase()+words[1].slice(1)+" Key";
-            console.log(obj);
             for (let x:number=0;x<this.state.user.userInventory.length;x++){
                 if(this.state.user.userInventory[x].objectName===obj){
                     return true;
@@ -486,7 +477,6 @@ export default class Game extends Component<IAuth, IGameState>{
         )
         .then(
             ({data})=>{
-                console.log(data);
                 this.addAndSetState();
                 this.componentDidMount();
             }
@@ -674,16 +664,19 @@ export default class Game extends Component<IAuth, IGameState>{
                     this.state.allText.push(`${this.state.room.roomLook}. In the room you can find: ${uInv}`); 
             }
         }
-        else if(realWords[0]==="attack" && realWords.length>1){
-            this.state.allText.push(`If you wish to attack, just type "attack", the complicated maths of what to use 
+        else if((realWords[0]==="attack" || realWords[0]==="kill" || realWords[0]==="damage" || realWords[0]==="hit") && realWords.length>1){
+            this.state.allText.push(`If you wish to attack, just type "${realWords[0]}", the complicated maths of what to use 
             and whom to attack have been figured out by me, your conscience. (No need to praise, but some recognition isn't bad at all).`);
         }
-        else if(realWords[0]==="attack"){
+        else if(realWords[0]==="attack" || realWords[0]==="kill" || realWords[0]==="damage" || realWords[0]==="hit"){
             if(this.state.room.roomEnemyAlive){
                 this.attackSequence();
             }else{
                 this.state.allText.push(`If there is no battle, there no need to attack`);
             }
+        }
+        else if((realWords[0]==="thanks" && realWords.length===1) || (realWords[0]==="thank" && realWords[1]==="you" && realWords.length===2)){
+            this.state.allText.push(`You're welcome. I'm glad to help. Also, its really gratifying to hear a compliment`);
         }
         else if(realWords.length===1){
             this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
@@ -697,7 +690,7 @@ export default class Game extends Component<IAuth, IGameState>{
         }
         else if(realWords[0]==="move" || realWords[0]==="go"){
             let roomDecision:ObjectID|string = "";
-            if(realWords[1]==="forward" ||  realWords[1]==="ahead" || realWords[1]==="north"){
+            if(realWords[1]==="forward" || realWords[1]==="front" ||  realWords[1]==="ahead" || realWords[1]==="north"){
                 if(this.state.room.roomForward.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomForward}`);
                 }else{
@@ -712,7 +705,7 @@ export default class Game extends Component<IAuth, IGameState>{
                         this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
                 }
-            }else if(realWords[1]==="backward" || realWords[1]==="behind" || realWords[1]==="south"){
+            }else if(realWords[1]==="backward" || realWords[1]==="back" || realWords[1]==="behind" || realWords[1]==="south"){
                 if(this.state.room.roomBackward.toString().length>25){
                     this.state.allText.push(`${this.state.room.roomBackward}`);
                 }else{
@@ -858,10 +851,16 @@ export default class Game extends Component<IAuth, IGameState>{
                                     if(verbText==="objectGrab"){
                                         mainArray = this.state.room.roomObjectsInv;
                                         uri = `/api/user/grab`;
-                                    }else if(verbText==="objectUse" || verbText==="objectEat"){
+                                    }
+                                    else if(verbText==="objectUse" && realWords[2]==="key"){
+                                        uri = `/api/user/useKey`;
+                                        mainArray = this.state.user.userInventory;
+                                    }
+                                    else if(verbText==="objectUse" || verbText==="objectEat"){
                                         uri = `/api/user/useHealingItem`;
                                         mainArray = this.state.user.userInventory;
-                                    }else if(verbText!=="objectDrop" && verbText!=="objectEquip" && verbText!=="objectUnequip"){
+                                    }
+                                    else if(verbText!=="objectDrop" && verbText!=="objectEquip" && verbText!=="objectUnequip"){
                                         mainArray = this.state.user.userInventory;
                                     }
                                     else{
@@ -872,68 +871,76 @@ export default class Game extends Component<IAuth, IGameState>{
                                             mainArray.push(this.state.user.userInventory[s]);
                                         }
                                     }
-                                        for(let a:number=0;a<mainArray.length;a++){
-                                            if(mainArray[a].objectName === objectTextUpC){
-                                                for(let b:number = 0;b<(Object.entries(mainArray[a])).length;b++){
-                                                    if(Object.entries(mainArray[a])[b][0]===verbText){
-                                                        let obj:string=mainArray[a]
-                                                        if(verbText==="objectDrop"){
-                                                            uri = `/api/user/drop`;
-                                                        }
-                                                        if(verbText==="objectEquip"){
-                                                            uri=`/api/user/equip`
-                                                        }
-                                                        if(verbText==="objectUnequip"){
-                                                            uri=`/api/user/unequip`;
-                                                            obj=objectTextUpC;
-                                                        }
-                                                        if(uri!==``){
-                                                            saxios.put(
-                                                                `${uri}`,
-                                                                {
-                                                                    object: obj,
-                                                                    currentRName: this.state.room.roomName,
-                                                                    uName: this.state.name,
-                                                                    InvObjs: mainArray,
-                                                                    leftE: this.state.user.userLeftEquip.objectName,
-                                                                    rightE: this.state.user.userRightEquip.objectName,
-                                                                    dir: direction,
-                                                                    realH: this.state.user.userRealHealth,
-                                                                    baseH: this.state.user.userBaseHealth,
-                                                                }
-                                                            )
-                                                            .then(
-                                                                ({data})=>{
-                                                                    if(data.msg){
-                                                                        this.setState({
-                                                                            msg: data.msg
-                                                                        },()=>{
-                                                                            this.componentDidMount();
-                                                                        });
-                                                                    }  
-                                                                }
-                                                            )
-                                                            .catch(
-                                                                (err)=>{
-                                                                    console.log(err);
-                                                                }
-                                                            )    
-                                                        }
-                                                        if(!printed){
-                                                            if(this.state.msg!==""){
-                                                                this.state.allText.push(`${this.state.msg}`);
-                                                            }else{
-                                                                this.state.allText.push((Object.entries(mainArray[a])[b][1] as string));
+                                    console.log(objectTextUpC);
+                                    for(let a:number=0;a<mainArray.length;a++){
+                                        if(mainArray[a].objectName === objectTextUpC){
+                                            for(let b:number = 0;b<(Object.entries(mainArray[a])).length;b++){
+                                                if(Object.entries(mainArray[a])[b][0]===verbText){
+                                                    let obj:string=mainArray[a]
+                                                    if(verbText==="objectDrop"){
+                                                        uri = `/api/user/drop`;
+                                                    }
+                                                    if(verbText==="objectEquip"){
+                                                        uri=`/api/user/equip`
+                                                    }
+                                                    if(verbText==="objectUnequip"){
+                                                        uri=`/api/user/unequip`;
+                                                        obj=objectTextUpC;
+                                                    }
+                                                    if(uri!==``){
+                                                        saxios.put(
+                                                            `${uri}`,
+                                                            {
+                                                                object: obj,
+                                                                currentRName: this.state.room.roomName,
+                                                                uName: this.state.name,
+                                                                InvObjs: mainArray,
+                                                                leftE: this.state.user.userLeftEquip.objectName,
+                                                                rightE: this.state.user.userRightEquip.objectName,
+                                                                dir: direction,
+                                                                realH: this.state.user.userRealHealth,
+                                                                baseH: this.state.user.userBaseHealth,
+                                                                doorP: realWords[1].charAt(0).toUpperCase()+realWords[1].slice(1),
                                                             }
-                                                            this.addAndSetState();
-                                                            printed=true;  
-                                                            this.componentDidMount();
-                                                            break; 
-                                                        }
+                                                        )
+                                                        .then(
+                                                            ({data})=>{
+                                                                console.log(data.length);
+                                                                console.log(data.msg);
+                                                                if(!(data.msg===undefined) || data.length>0){
+                                                                    this.state.allText.push(`${data.msg}`);
+                                                                }
+                                                                if((!data.msg) || data.msg==="" || data.length===0){
+                                                                    this.state.allText.push((Object.entries(mainArray[a])[b][1] as string));
+                                                                }
+                                                                if(data.more){
+                                                                    this.state.allText.push(`${data.more}`);
+                                                                }
+                                                                this.setState({
+                                                                    msg: ""
+                                                                },()=>{
+                                                                    this.addAndSetState();
+                                                                    this.componentDidMount();
+                                                                });
+                                                            }
+                                                        )
+                                                        .catch(
+                                                            (err)=>{
+                                                                console.log(err);
+                                                            }
+                                                        )
+                                                        printed=true;     
+                                                    }
+                                                    if(!printed){
+                                                        this.addAndSetState();
+                                                        printed=true;  
+                                                        this.componentDidMount();
+                                                        break; 
                                                     }
                                                 }
                                             }
                                         }
+                                    }
                                     if(!printed){
                                         this.state.allText.push(`There's no ${objectTextUpC} available to ${allV[c].associateVerb}`);
                                         this.addAndSetState();
