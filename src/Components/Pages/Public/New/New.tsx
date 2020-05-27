@@ -32,7 +32,6 @@ export default class New extends Component<IAuth, INewState>{
     onChangeText = (e: React.ChangeEvent<HTMLInputElement>)=>{
         const {name,value} = e.currentTarget;
         let errors:object = this.validate(value);
-        console.log(this.state);
         this.setState({
             ...this.state,
             [name]:value,

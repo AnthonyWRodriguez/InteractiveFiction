@@ -66,6 +66,7 @@ export default class Game extends Component<IAuth, IGameState>{
                 roomBackwardBool: false
             },
             allInventory: [],
+            allV: [],
             msg: "",
         }
     }
@@ -80,7 +81,20 @@ export default class Game extends Component<IAuth, IGameState>{
         .then(
             ({data})=>{
                 for(let a:number=0;a<data.length;a++){
-                    state.allInventory.push(data[a].objectName);
+                    state.allInventory = data;
+                }
+            }
+        )
+        .catch(
+            (err)=>{
+                console.log(err);
+            }
+        )
+        saxios.get(`api/user/allVerbs`)
+        .then(
+            ({data})=>{
+                for(let a:number=0;a<data.length;a++){
+                    state.allV = data; 
                 }
             }
         )
@@ -457,7 +471,7 @@ export default class Game extends Component<IAuth, IGameState>{
         this.componentDidMount();
     }
     checkIfKey = (words:string[])=>{
-        if(words[2]==="door" || words[2]==="doors" || words[2]==="Door" || words[2]==="Doors"){
+        if(words[2]==="door" || words[2]==="doors"){
             let obj:string = words[1].charAt(0).toUpperCase()+words[1].slice(1)+" Key";
             for (let x:number=0;x<this.state.user.userInventory.length;x++){
                 if(this.state.user.userInventory[x].objectName===obj){
@@ -630,7 +644,8 @@ export default class Game extends Component<IAuth, IGameState>{
                 If you want to grab something, type "grab" followed by the object you want to try and grab.
                 If you want to get more knowledge of other verbs, type "help" followed by the verb you want to know more about.
                 If you want to look at your surroundings, type "look".
-                In the spirit of encouraging exploration, try different verbs and see their effects!`);    
+                In the spirit of encouraging exploration, try different verbs and see their effects!...
+                But... If you want a list of all verbs available, type "verb list"`);    
             }
         }else if(realWords[0]==="exit"){
             this.state.allText.push(`Your progress is automatically saved every command you make.
@@ -682,73 +697,81 @@ export default class Game extends Component<IAuth, IGameState>{
             this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
             so please, after every verb, please choose an object to interact with`);
         }
-        else if((realWords[0]==="move" && realWords.length>2) || (realWords[0]==="go" && realWords.length>2)){
+        else if((realWords[0]==="move"  || realWords[0]==="go") && realWords.length>2){
             this.state.allText.push(`If you want to try and move an object, please use pull or push, its more specific`);
         }
-        else if((realWords[0]==="open") && realWords.length===2){
+        else if((realWords[0]==="open") && realWords.length===2){            
             this.state.allText.push(`There may be more than 1 object with that generic name, please be more specific with the object you interact with`)
+        }
+        else if(realWords[0]==="verb" && realWords[1]==="list" && realWords.length===2){
+            let verbs:string[] = [];
+            for (let a:number=0;a<this.state.allV.length;a++){
+                verbs.push(this.state.allV[a].name);
+            }
+            this.state.allText.push(`All the actions you could possibly perform are the following: ${verbs}. 
+            If you want an in-depth explanation of each one, type "help" followed by the verb you want more info of`)
         }
         else if(realWords[0]==="move" || realWords[0]==="go"){
             let roomDecision:ObjectID|string = "";
             if(realWords[1]==="forward" || realWords[1]==="front" ||  realWords[1]==="ahead" || realWords[1]==="north"){
-                if(this.state.room.roomForward.toString().length>25){
-                    this.state.allText.push(`${this.state.room.roomForward}`);
-                }else{
-                    if(this.state.room.roomForwardBool){
+                if(this.state.room.roomForwardBool){
+                    if(this.state.room.roomForward.toString().length>25){
+                        this.state.allText.push(`${this.state.room.roomForward}`);
+                    }else{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
                             roomDecision = this.state.room.roomForward;
                             this.changeRoom(roomDecision);
                         }
-                    }else{
-                        this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
+                }else{
+                    this.state.allText.push("Your path is blocked. Find a way get where you want");
                 }
             }else if(realWords[1]==="backward" || realWords[1]==="back" || realWords[1]==="behind" || realWords[1]==="south"){
-                if(this.state.room.roomBackward.toString().length>25){
-                    this.state.allText.push(`${this.state.room.roomBackward}`);
-                }else{
-                    if(this.state.room.roomBackwardBool){
+                if(this.state.room.roomBackwardBool){
+                    if(this.state.room.roomBackward.toString().length>25){
+                        this.state.allText.push(`${this.state.room.roomBackward}`);
+                    }else{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
                             roomDecision = this.state.room.roomBackward;
                             this.changeRoom(roomDecision);
                         }
-                    }else{
-                        this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
+                }else{
+                    this.state.allText.push("Your path is blocked. Find a way get where you want");
                 }
             }else if(realWords[1]==="left" || realWords[1]==="west"){
-                if(this.state.room.roomLeft.toString().length>25){
-                    this.state.allText.push(`${this.state.room.roomLeft}`);
-                }else{
-                    if(this.state.room.roomLeftBool){
+                if(this.state.room.roomLeftBool){
+                    if(this.state.room.roomLeft.toString().length>25){
+                        this.state.allText.push(`${this.state.room.roomLeft}`);
+                    }else{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
                             roomDecision = this.state.room.roomLeft;
                             this.changeRoom(roomDecision);
                         }
-                    }else{
-                        this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
+                }else{
+                    this.state.allText.push("Your path is blocked. Find a way get where you want");
                 }
             }else if(realWords[1]==="east" || realWords[1]==="right" ){
-                if(this.state.room.roomRight.toString().length>25){
-                    this.state.allText.push(`${this.state.room.roomRight}`);
-                }else{
-                    if(this.state.room.roomRightBool){
+                if(this.state.room.roomRightBool){
+                    if(this.state.room.roomRight.toString().length>25){
+                        this.state.allText.push(`${this.state.room.roomRight}`);
+                    }else{
                         if(this.state.room.roomEnemyAlive){
                             this.state.allText.push("You can't run away from a battle");
                         }else{
                             roomDecision = this.state.room.roomRight;
                             this.changeRoom(roomDecision);
                         }
-                    }else{
-                        this.state.allText.push("Your path is blocked. Find a way get where you want");
                     }
+                }else{
+                    this.state.allText.push("Your path is blocked. Find a way get where you want");
                 }
                 this.addAndSetState();
                 this.componentDidMount();
@@ -841,7 +864,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                 }
                                 let ifInv:boolean = false;
                                 for(let c:number=0;c<this.state.allInventory.length;c++){
-                                    if(this.state.allInventory[c]===objectTextUpC){
+                                    if(this.state.allInventory[c].objectName===objectTextUpC){
                                         ifInv=true;
                                     }
                                 }
@@ -871,7 +894,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                             mainArray.push(this.state.user.userInventory[s]);
                                         }
                                     }
-                                    console.log(objectTextUpC);
                                     for(let a:number=0;a<mainArray.length;a++){
                                         if(mainArray[a].objectName === objectTextUpC){
                                             for(let b:number = 0;b<(Object.entries(mainArray[a])).length;b++){
@@ -887,7 +909,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         uri=`/api/user/unequip`;
                                                         obj=objectTextUpC;
                                                     }
-                                                    if(uri!==``){
+                                                    if(uri!==`` && !printed){
                                                         saxios.put(
                                                             `${uri}`,
                                                             {
@@ -905,8 +927,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         )
                                                         .then(
                                                             ({data})=>{
-                                                                console.log(data.length);
-                                                                console.log(data.msg);
                                                                 if(!(data.msg===undefined) || data.length>0){
                                                                     this.state.allText.push(`${data.msg}`);
                                                                 }
@@ -921,7 +941,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                 },()=>{
                                                                     this.addAndSetState();
                                                                     this.componentDidMount();
-                                                                });
+                                                                });    
                                                             }
                                                         )
                                                         .catch(
@@ -1026,7 +1046,8 @@ interface IGameState{
     allText: string[];
     user: IUser;
     room: IRoom;
-    allInventory: string[];
+    allInventory: any[];
+    allV: any[];
     msg: string;
 }
 interface IUser{
