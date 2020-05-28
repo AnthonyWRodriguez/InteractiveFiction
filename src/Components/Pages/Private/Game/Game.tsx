@@ -70,42 +70,11 @@ export default class Game extends Component<IAuth, IGameState>{
             msg: "",
         }
     }
-    static getDerivedStateFromProps = (props:IAuth, state:IGameState)=>{
-        if(state.name==="AAAAA"){
+    componentDidMount(){
+        if(this.state.name==="AAAAA"){
             alert("An error has ocurred. Please log in again");
             return(<Redirect to="/login"/>);
         }
-        saxios.get(
-            `/api/user/allInvObjects`
-        )
-        .then(
-            ({data})=>{
-                for(let a:number=0;a<data.length;a++){
-                    state.allInventory = data;
-                }
-            }
-        )
-        .catch(
-            (err)=>{
-                console.log(err);
-            }
-        )
-        saxios.get(`api/user/allVerbs`)
-        .then(
-            ({data})=>{
-                for(let a:number=0;a<data.length;a++){
-                    state.allV = data; 
-                }
-            }
-        )
-        .catch(
-            (err)=>{
-                console.log(err);
-            }
-        )
-        return null;    
-    }
-    componentDidMount(){
         let email:string|null = (getLocalStorage("email")||"AAAAA");
         saxios.get(
             `/api/user/myUser/${email}`
@@ -171,6 +140,34 @@ export default class Game extends Component<IAuth, IGameState>{
                 console.log(err);
             }
         )
+        saxios.get(
+            `/api/user/allInvObjects`
+        )
+        .then(
+            ({data})=>{
+                this.setState({
+                    allInventory: data
+                })
+            }
+        )
+        .catch(
+            (err)=>{
+                console.log(err);
+            }
+        )
+        saxios.get(`api/user/allVerbs`)
+        .then(
+            ({data})=>{
+                this.setState({
+                    allV: data
+                })
+            }
+        )
+        .catch(
+            (err)=>{
+                console.log(err);
+            }
+        )
     }
     onChangeText = (e: React.ChangeEvent<HTMLInputElement>)=>{
         const {name, value} = e.currentTarget;
@@ -194,6 +191,7 @@ export default class Game extends Component<IAuth, IGameState>{
             let aside = document.getElementById("aside") as HTMLElement;
             aside.scrollTop = aside.scrollHeight;
         });
+        this.componentDidMount();
     }
     getHit = (newHP:number) =>{
         let user:IUser = this.state.user;
@@ -213,7 +211,6 @@ export default class Game extends Component<IAuth, IGameState>{
             .then(
                 ({data})=>{
                     this.addAndSetState();
-                    this.componentDidMount();
                 }
             )
             .catch(
@@ -235,7 +232,6 @@ export default class Game extends Component<IAuth, IGameState>{
             .then(
                 ({data})=>{
                     this.addAndSetState();
-                    this.componentDidMount();
                 }
             )
             .catch(
@@ -281,9 +277,9 @@ export default class Game extends Component<IAuth, IGameState>{
                                     .then(
                                         ({data})=>{
                                             this.state.allText.push(`As the enemy vanishes into thin air, a chest appears out of nowhere.
-                                            The chest has an inscription that says "${chestName}"`);
+                                            The chest has an inscription that says "${chestName}".
+                                            With the chest being closed, you'll need to open it to reveal its contents`);
                                             this.addAndSetState();
-                                            this.componentDidMount();
                                         }
                                     )
                                     .catch(
@@ -414,7 +410,7 @@ export default class Game extends Component<IAuth, IGameState>{
                         }
                     }
                 }else if(right.objectWeight<=enemy.enemyWeapon.objectWeight){
-                    let h:number = this.directionAttack("right", this.state.room.roomEnemyHealth)
+                    let h:number = this.directionAttack("right", this.state.room.roomEnemyHealth);
                     if(h>0){
                         this.state.allText.push(`${enemy.enemyName} attacked with ${enemy.enemyWeapon.objectName}, 
                         dealing ${enemy.enemyATK+enemy.enemyWeapon.objectValue} damage`);
@@ -468,10 +464,9 @@ export default class Game extends Component<IAuth, IGameState>{
             this.state.allText.push(`You have nothing to attack with, try equipping a useful weapon`);
         }
         this.addAndSetState();
-        this.componentDidMount();
     }
     checkIfKey = (words:string[])=>{
-        if(words[2]==="door" || words[2]==="doors"){
+        if((words[2]==="door" || words[2]==="doors") && words[0]==="open"){
             let obj:string = words[1].charAt(0).toUpperCase()+words[1].slice(1)+" Key";
             for (let x:number=0;x<this.state.user.userInventory.length;x++){
                 if(this.state.user.userInventory[x].objectName===obj){
@@ -492,7 +487,6 @@ export default class Game extends Component<IAuth, IGameState>{
         .then(
             ({data})=>{
                 this.addAndSetState();
-                this.componentDidMount();
             }
         )
         .catch(
@@ -715,11 +709,11 @@ export default class Game extends Component<IAuth, IGameState>{
             let roomDecision:ObjectID|string = "";
             if(realWords[1]==="forward" || realWords[1]==="front" ||  realWords[1]==="ahead" || realWords[1]==="north"){
                 if(this.state.room.roomForwardBool){
-                    if(this.state.room.roomForward.toString().length>25){
-                        this.state.allText.push(`${this.state.room.roomForward}`);
+                    if(this.state.room.roomEnemyAlive){
+                        this.state.allText.push("You can't run away from a battle");
                     }else{
-                        if(this.state.room.roomEnemyAlive){
-                            this.state.allText.push("You can't run away from a battle");
+                        if(this.state.room.roomForward.toString().length>25){
+                            this.state.allText.push(`${this.state.room.roomForward}`);
                         }else{
                             roomDecision = this.state.room.roomForward;
                             this.changeRoom(roomDecision);
@@ -730,11 +724,11 @@ export default class Game extends Component<IAuth, IGameState>{
                 }
             }else if(realWords[1]==="backward" || realWords[1]==="back" || realWords[1]==="behind" || realWords[1]==="south"){
                 if(this.state.room.roomBackwardBool){
-                    if(this.state.room.roomBackward.toString().length>25){
-                        this.state.allText.push(`${this.state.room.roomBackward}`);
+                    if(this.state.room.roomEnemyAlive){
+                        this.state.allText.push("You can't run away from a battle");
                     }else{
-                        if(this.state.room.roomEnemyAlive){
-                            this.state.allText.push("You can't run away from a battle");
+                        if(this.state.room.roomBackward.toString().length>25){
+                            this.state.allText.push(`${this.state.room.roomBackward}`);
                         }else{
                             roomDecision = this.state.room.roomBackward;
                             this.changeRoom(roomDecision);
@@ -745,11 +739,11 @@ export default class Game extends Component<IAuth, IGameState>{
                 }
             }else if(realWords[1]==="left" || realWords[1]==="west"){
                 if(this.state.room.roomLeftBool){
-                    if(this.state.room.roomLeft.toString().length>25){
-                        this.state.allText.push(`${this.state.room.roomLeft}`);
+                    if(this.state.room.roomEnemyAlive){
+                        this.state.allText.push("You can't run away from a battle");
                     }else{
-                        if(this.state.room.roomEnemyAlive){
-                            this.state.allText.push("You can't run away from a battle");
+                        if(this.state.room.roomLeft.toString().length>25){
+                            this.state.allText.push(`${this.state.room.roomLeft}`);
                         }else{
                             roomDecision = this.state.room.roomLeft;
                             this.changeRoom(roomDecision);
@@ -760,11 +754,11 @@ export default class Game extends Component<IAuth, IGameState>{
                 }
             }else if(realWords[1]==="east" || realWords[1]==="right" ){
                 if(this.state.room.roomRightBool){
-                    if(this.state.room.roomRight.toString().length>25){
-                        this.state.allText.push(`${this.state.room.roomRight}`);
+                    if(this.state.room.roomEnemyAlive){
+                        this.state.allText.push("You can't run away from a battle");
                     }else{
-                        if(this.state.room.roomEnemyAlive){
-                            this.state.allText.push("You can't run away from a battle");
+                        if(this.state.room.roomRight.toString().length>25){
+                            this.state.allText.push(`${this.state.room.roomRight}`);
                         }else{
                             roomDecision = this.state.room.roomRight;
                             this.changeRoom(roomDecision);
@@ -774,11 +768,9 @@ export default class Game extends Component<IAuth, IGameState>{
                     this.state.allText.push("Your path is blocked. Find a way get where you want");
                 }
                 this.addAndSetState();
-                this.componentDidMount();
             }else{
                 this.state.allText.push(`That is not a valid way to move. Please type a valid "move" command`);
                 this.addAndSetState();
-                this.componentDidMount();
             }
         }
         else{
@@ -832,7 +824,6 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                             this.state.allText.push(data.more);
                                                                         }
                                                                         this.addAndSetState();
-                                                                        this.componentDidMount();
                                                                     }
                                                                 )
                                                                 .catch(
@@ -841,24 +832,15 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                     }
                                                                 )
                                                                 printed=true;
-                                                                break;
                                                             }
                                                         }else{
                                                             this.state.allText.push(`${(Object.entries(this.state.room.roomObjectsEnv[a]))[b][1]}`);
                                                             this.addAndSetState();
                                                             printed=true;
-                                                            this.componentDidMount();
-                                                            break;
                                                         }
                                                     }
-                                                }
-                                                if(printed){
-                                                    break;
-                                                }     
+                                                }  
                                             }
-                                        }
-                                        if(printed){
-                                            break;
                                         }
                                     }
                                 }
@@ -915,6 +897,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             {
                                                                 object: obj,
                                                                 currentRName: this.state.room.roomName,
+                                                                currentRID: this.state.user.userCurrentRoom,
                                                                 uName: this.state.name,
                                                                 InvObjs: mainArray,
                                                                 leftE: this.state.user.userLeftEquip.objectName,
@@ -940,8 +923,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                     msg: ""
                                                                 },()=>{
                                                                     this.addAndSetState();
-                                                                    this.componentDidMount();
-                                                                });    
+                                                                });
                                                             }
                                                         )
                                                         .catch(
@@ -949,13 +931,12 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                 console.log(err);
                                                             }
                                                         )
-                                                        printed=true;     
+                                                        printed=true; 
                                                     }
                                                     if(!printed){
                                                         this.addAndSetState();
                                                         printed=true;  
-                                                        this.componentDidMount();
-                                                        break; 
+                                                        
                                                     }
                                                 }
                                             }
