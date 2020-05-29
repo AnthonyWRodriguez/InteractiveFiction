@@ -700,10 +700,10 @@ export default class Game extends Component<IAuth, IGameState>{
         else if(realWords[0]==="verb" && realWords[1]==="list" && realWords.length===2){
             let verbs:string[] = [];
             for (let a:number=0;a<this.state.allV.length;a++){
-                verbs.push(this.state.allV[a].name);
+                verbs.push((" "+this.state.allV[a].name));
             }
             this.state.allText.push(`All the actions you could possibly perform are the following: ${verbs}. 
-            If you want an in-depth explanation of each one, type "help" followed by the verb you want more info of`)
+            If you want an in-depth explanation of each one, type "help" followed by the verb you want more info about`)
         }
         else if(realWords[0]==="move" || realWords[0]==="go"){
             let roomDecision:ObjectID|string = "";
