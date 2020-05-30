@@ -815,6 +815,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                                         roomID: this.state.user.userCurrentRoom,
                                                                         uName: this.state.name,
                                                                         objectN: objectTextUpC,
+                                                                        InvObjs: this.state.user.userInventory,
                                                                     }
                                                                 )
                                                                 .then(
@@ -835,8 +836,8 @@ export default class Game extends Component<IAuth, IGameState>{
                                                             }
                                                         }else{
                                                             this.state.allText.push(`${(Object.entries(this.state.room.roomObjectsEnv[a]))[b][1]}`);
-                                                            this.addAndSetState();
                                                             printed=true;
+                                                            this.addAndSetState();
                                                         }
                                                     }
                                                 }  
@@ -910,7 +911,7 @@ export default class Game extends Component<IAuth, IGameState>{
                                                         )
                                                         .then(
                                                             ({data})=>{
-                                                                if(!(data.msg===undefined) || data.length>0){
+                                                                if(data.msg!==undefined || data.length>0){
                                                                     this.state.allText.push(`${data.msg}`);
                                                                 }
                                                                 if((!data.msg) || data.msg==="" || data.length===0){
