@@ -97,6 +97,7 @@ export default class Game extends Component<IAuth, IGameState>{
                         .then(
                             ({data})=>{
                                 alert(data.msg);
+                                this.componentDidMount();
                             }
                         )
                         .catch(
@@ -641,12 +642,9 @@ export default class Game extends Component<IAuth, IGameState>{
                 In the spirit of encouraging exploration, try different verbs and see their effects!...
                 But... If you want a list of all verbs available, type "verb list"`);    
             }
-        }else if(realWords[0]==="exit"){
+        }else if((realWords[0]==="exit" || realWords[0]==="close") && realWords.length===1){
             this.state.allText.push(`Your progress is automatically saved every command you make.
             If you want to exit, just press Logout or Adventure at the top of your screen`);
-        }
-        else if(realWords[0]==="close"){
-            this.state.allText.push(`There is no benefit in closing something, so why try and close it? Just... leave it as it is.`);
         }
         else if(realWords[0]==="eat"){
             this.state.allText.push(`Rather than eating a questionable item, I implore you to "use" it. For your (and my) health.`);
@@ -681,15 +679,26 @@ export default class Game extends Component<IAuth, IGameState>{
             if(this.state.room.roomEnemyAlive){
                 this.attackSequence();
             }else{
-                this.state.allText.push(`If there is no battle, there no need to attack`);
+                this.state.allText.push(`If there is no battle, there no need to ${realWords[0]} anything`);
             }
         }
         else if((realWords[0]==="thanks" && realWords.length===1) || (realWords[0]==="thank" && realWords[1]==="you" && realWords.length===2)){
             this.state.allText.push(`You're welcome. I'm glad to help. Also, its really gratifying to hear a compliment`);
         }
+        else if(realWords[0]==="restart" || realWords[0]==="suicide" || (realWords[0]==="kill" && realWords[1]==="me")){
+            this.state.allText.push(`After thinking all of what you've been through, you decide its no longer worth it,
+            which means... you'll take your own life. As your conscience, I fear nothing, since I know a little secret. 
+            But remember, it's a secret to everybody (And now I'm talking to you, player)(and yes, breaking forth wall, bla bla)
+            The little secret is that this world is constructed so that each time ${this.state.name} dies, 
+            ${this.state.name} comes back alive. So please, enjoy replaying the adventure once more`);
+            this.getHit(-7);
+        }
         else if(realWords.length===1){
             this.state.allText.push(`You can't possibly think to "${realWords[0]}" without a something or a somewhere,
             so please, after every verb, please choose an object to interact with`);
+        }
+        else if(realWords[0]==="close"){
+            this.state.allText.push(`There is no benefit in closing something, so why try and close it? Just... leave it as it is.`);
         }
         else if((realWords[0]==="move"  || realWords[0]==="go") && realWords.length>2){
             this.state.allText.push(`If you want to try and move an object, please use pull or push, its more specific`);
