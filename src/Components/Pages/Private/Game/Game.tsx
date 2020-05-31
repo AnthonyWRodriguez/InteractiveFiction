@@ -685,7 +685,7 @@ export default class Game extends Component<IAuth, IGameState>{
         else if((realWords[0]==="thanks" && realWords.length===1) || (realWords[0]==="thank" && realWords[1]==="you" && realWords.length===2)){
             this.state.allText.push(`You're welcome. I'm glad to help. Also, its really gratifying to hear a compliment`);
         }
-        else if(realWords[0]==="restart" || realWords[0]==="suicide" || (realWords[0]==="kill" && realWords[1]==="me")){
+        else if(realWords[0]==="restart" || realWords[0]==="reset" || realWords[0]==="suicide" || (realWords[0]==="kill" && realWords[1]==="me")){
             this.state.allText.push(`After thinking all of what you've been through, you decide its no longer worth it,
             which means... you'll take your own life. As your conscience, I fear nothing, since I know a little secret. 
             But remember, it's a secret to everybody (And now I'm talking to you, player)(and yes, breaking forth wall, bla bla)
