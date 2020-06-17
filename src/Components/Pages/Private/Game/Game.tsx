@@ -383,7 +383,7 @@ export default class Game extends Component<IAuth, IGameState>{
                 if(left.objectWeight<=enemy.enemyWeapon.objectWeight){
                     if(left.objectWeight+right.objectWeight<=enemy.enemyWeapon.objectWeight){
                         this.state.allText.push(`You attacked with the ${left.objectName} followed by ${right.objectName},
-                        making a total of ${me.userAtk*(left.objectValue+right.objectValue)}`);
+                        making a total of ${(2*me.userAtk)+left.objectValue+right.objectValue}`);
                         //Subtract from enemy
                         let remainingHealth:number = (room.roomEnemyHealth - (me.userAtk*(left.objectValue+right.objectValue)));
                         this.hitEnemy(remainingHealth);
