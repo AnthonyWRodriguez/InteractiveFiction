@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import Page from '../../Page';
 import { IAuth } from '../../../Common/Interfaces/Interfaces';
 import './Game.css';
-import { getLocalStorage, saxios } from '../../../Utilities/Utilities';
+import { getLocalStorage, saxios, naxios } from '../../../Utilities/Utilities';
 import { Redirect } from 'react-router-dom';
 import Input from '../../../Common/Input/Input';
 import { ObjectID } from 'mongodb';
 import { IoIosReturnLeft } from 'react-icons/io';
 import { allMoves } from '../../../Common/Validators/Validators';
+
 
 export default class Game extends Component<IAuth, IGameState>{
     constructor(props: IAuth){
@@ -70,70 +71,82 @@ export default class Game extends Component<IAuth, IGameState>{
             msg: "",
         }
     }
-    componentDidMount(){
+    async componentDidMount(){
         if(this.state.name==="AAAAA"){
             alert("An error has ocurred. Please log in again");
             return(<Redirect to="/login"/>);
         }
         let email:string|null = (getLocalStorage("email")||"AAAAA");
+        console.log("EMAIL: ",email);
         saxios.get(
             `/api/user/myUser/${email}`
         )
         .then(
             ({data})=>{
-                this.setState({
-                    user: data,
-                    msg: "",
-                    allText: data.userCommands
-                },()=>{
-                    if(this.state.user.userRealHealth<=0){
-                        alert("You died. Restarting from the beginning...");
-                        saxios.put(
-                            `/api/user/death`,
-                            {
-                                name: this.state.name
-                            }
-                        )
-                        .then(
-                            ({data})=>{
-                                alert(data.msg);
-                                this.componentDidMount();
-                            }
-                        )
-                        .catch(
-                            (err)=>{
-                                console.log(err);
-                            }
-                        )
-                    }else{
-                        saxios.get(`/api/user/currentRoom/${this.state.user._id}/${this.state.user.userCurrentRoom}`)
-                        .then(
-                            ({data})=>{
-                                let aside = document.getElementById("aside") as HTMLElement;
-                                aside.scrollTop = aside.scrollHeight;
-                                this.setState({
-                                    room: data
-                                },()=>{
-                                    const words:string[] = this.state.allText[this.state.allText.length-1].split(" ");
-                                    if(allMoves.test(words[1])){
-                                        if(this.state.room.roomEnemyAlive){
-                                            this.state.allText.push(`${this.state.room.roomEnterEnemy}`);
-                                            this.addAndSetState();
-                                        }else{
-                                            this.state.allText.push(`${this.state.room.roomEnter}`);
-                                            this.addAndSetState();
+                if(data == null){
+                    naxios.post(
+                        `api/user/new`,
+                        {
+                            name: this.state.name,
+                            email: email
+                        }
+                    )
+                    window.location.reload();
+                }else{
+                    this.setState({
+                        user: data,
+                        msg: "",
+                        allText: data.userCommands
+                    },()=>{
+                        if(this.state.user.userRealHealth<=0){
+                            alert("You died. Restarting from the beginning...");
+                            saxios.put(
+                                `/api/user/death`,
+                                {
+                                    name: this.state.name
+                                }
+                            )
+                            .then(
+                                ({data})=>{
+                                    alert(data.msg);
+                                    this.componentDidMount();
+                                }
+                            )
+                            .catch(
+                                (err)=>{
+                                    console.log(err);
+                                }
+                            )
+                        }else{
+                            saxios.get(`/api/user/currentRoom/${this.state.user._id}/${this.state.user.userCurrentRoom}`)
+                            .then(
+                                ({data})=>{
+                                    let aside = document.getElementById("aside") as HTMLElement;
+                                    aside.scrollTop = aside.scrollHeight;
+                                    this.setState({
+                                        room: data
+                                    },()=>{
+                                        const words:string[] = this.state.allText[this.state.allText.length-1].split(" ");
+                                        if(allMoves.test(words[1])){
+                                            if(this.state.room.roomEnemyAlive){
+                                                this.state.allText.push(`${this.state.room.roomEnterEnemy}`);
+                                                this.addAndSetState();
+                                            }else{
+                                                this.state.allText.push(`${this.state.room.roomEnter}`);
+                                                this.addAndSetState();
+                                            }
                                         }
-                                    }
-                                });
-                            }
-                        )
-                        .catch(
-                            (err)=>{
-                                console.log(err);  
-                            }
-                        )    
-                    }
-                })
+                                    });
+                                }
+                            )
+                            .catch(
+                                (err)=>{
+                                    console.log(err);  
+                                }
+                            )    
+                        }
+                    })
+                }
             }
         )
         .catch(
@@ -141,34 +154,10 @@ export default class Game extends Component<IAuth, IGameState>{
                 console.log(err);
             }
         )
-        saxios.get(
-            `/api/user/allInvObjects`
-        )
-        .then(
-            ({data})=>{
-                this.setState({
-                    allInventory: data
-                })
-            }
-        )
-        .catch(
-            (err)=>{
-                console.log(err);
-            }
-        )
-        saxios.get(`api/user/allVerbs`)
-        .then(
-            ({data})=>{
-                this.setState({
-                    allV: data
-                })
-            }
-        )
-        .catch(
-            (err)=>{
-                console.log(err);
-            }
-        )
+        this.setState({
+            allInventory: await saxios.get(`/api/user/allInvObjects`),
+            allV: await saxios.get(`api/user/allVerbs`)
+        });
     }
     onChangeText = (e: React.ChangeEvent<HTMLInputElement>)=>{
         const {name, value} = e.currentTarget;
@@ -1005,7 +994,7 @@ export default class Game extends Component<IAuth, IGameState>{
             uiItems = <p key="0">Empty</p>
         }
         return(
-            <Page auth={this.props.auth}>
+            <Page>
                 <div className="container d-flex flex-column align-items-center justify-content-center">
                     <aside 
                         className="bg-secondary"
